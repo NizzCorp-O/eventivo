@@ -17,6 +17,7 @@ class LoginServices {
         "name": log.name,
         "email": log.email,
         "password": log.password,
+        "role" : "participant",
         "createdAt": FieldValue.serverTimestamp(),
       });
     } on FirebaseAuthException catch (e) {
@@ -32,12 +33,22 @@ class LoginServices {
     }
   }
 
-  Future<void> onLogin(String email, String password) async {
+  Future<String> onLogin(String email, String password) async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+        // Step 2: Get user ID
+    String uid = credential.user!.uid;
+      // Step 3: Fetch user document from Firestore
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+          if (!userDoc.exists) {
+      throw Exception("User profile not found in Firestore");
+    }
+   // Step 4: Extract role
+  return userDoc["role"]; // return admin / participant
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw Exception("No user found for this email.");

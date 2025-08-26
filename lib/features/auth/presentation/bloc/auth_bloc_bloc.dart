@@ -11,6 +11,7 @@ class AuthBlocBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<SignUpEvent>((event, emit) async {
       emit(AuthLoading());
       try {
+   
         await authService.onRegister(
           LoginModel(
             name: event.name,
@@ -19,7 +20,6 @@ class AuthBlocBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
           ),
         );
         emit(AuthSuccess());
-        ;
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
@@ -27,8 +27,8 @@ class AuthBlocBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<LoginEvent>((event, emit) async {
       emit(AuthLoading());
       try {
-        await authService.onLogin(event.email, event.password);
-        emit(AuthSuccess());
+      final role =  await authService.onLogin(event.email, event.password);
+        emit(AuthSuccess(role: role));
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
