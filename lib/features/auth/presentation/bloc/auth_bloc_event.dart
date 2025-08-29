@@ -12,13 +12,15 @@ class LoginEvent extends AuthBlocEvent {
 class SignUpEvent extends AuthBlocEvent {
   final String name;
   final String email;
+  final String phone;
   final String password;
   final String confirmPassword;
 
-  SignUpEvent(
-    this.name,
-    this.confirmPassword, {
+  SignUpEvent({
+    required this.name,
     required this.email,
+    required this.phone,
     required this.password,
+    required this.confirmPassword,
   });
 }

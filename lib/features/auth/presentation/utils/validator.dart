@@ -1,10 +1,8 @@
 class InputValidator {
-
-
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) return "Email is required";
     final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-    if (!regex.hasMatch(value)) return "Enter a valid email"; 
+    if (!regex.hasMatch(value)) return "Enter a valid email";
     return null;
   }
 
@@ -13,7 +11,7 @@ class InputValidator {
     return null;
   }
 
-    static String? validateName(String? value) {
+  static String? validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return "Name is required";
     }
@@ -29,6 +27,16 @@ class InputValidator {
     }
     if (value != password) {
       return "Passwords do not match";
+    }
+    return null;
+  }
+
+  static String? validatePhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Phone number is required";
+    }
+    if (value.length < 10) {
+      return "invalid phone";
     }
     return null;
   }
