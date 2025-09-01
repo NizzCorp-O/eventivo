@@ -299,7 +299,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderSide: BorderSide(color: Colors.blue),
                                 ),
                                 prefixIcon: Icon(
-                                  Icons.question_mark_outlined,
+                                  Icons.lock_outlined,
                                   color: ColorConstant.InputText,
                                 ),
                                 enabledBorder: OutlineInputBorder(
@@ -346,7 +346,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderSide: BorderSide(color: Colors.blue),
                                 ),
                                 prefixIcon: Icon(
-                                  Icons.question_mark_outlined,
+                                  Icons.lock_outlined,
                                   color: ColorConstant.InputText,
                                 ),
                                 enabledBorder: OutlineInputBorder(

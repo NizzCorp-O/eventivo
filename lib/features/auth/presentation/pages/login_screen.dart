@@ -1,10 +1,9 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/admin_home_screen.dart';
-import 'package:eventivo/features/Events/Presentation/screens/forgot_password.dart';
-
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/participant_home_screen.dart';
-
+import 'package:eventivo/features/Events/Presentation/widgets/container_button.dart';
 import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
+import 'package:eventivo/features/auth/presentation/pages/forgot_password.dart';
 import 'package:eventivo/features/auth/presentation/pages/register_screen.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';
 import 'package:flutter/material.dart';
@@ -58,8 +57,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 return Center(
                   child: CircularProgressIndicator(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    backgroundColor: ColorConstant.CircularProgressIndicatorBG,
-                    color: ColorConstant.CircularProgressIndicator,
+                    backgroundColor: ColorConstant.GradientColor1,
+                    color: ColorConstant.MainBlack,
                   ),
                 );
               }
@@ -149,6 +148,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               SizedBox(height: 7),
+                              ///////////// TEXT FIELD SECTION ///////////
+                              /// ///////////// TEXT FIELD SECTION ///////////
+                              ///  ///////////// TEXT FIELD SECTION ///////////
                               TextFormField(
                                 validator: (value) =>
                                     InputValidator.validateEmail(value),
@@ -199,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderSide: BorderSide(color: Colors.red),
                                   ),
                                   prefixIcon: Icon(
-                                    Icons.question_mark_outlined,
+                                    Icons.lock_outlined,
                                     color: ColorConstant.InputText,
                                   ),
                                   enabledBorder: OutlineInputBorder(
@@ -248,55 +250,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                               SizedBox(height: 24),
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      ColorConstant.GradientColor1,
-                                      ColorConstant.GradientColor2,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    minimumSize: Size(double.infinity, 56),
-                                    shadowColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    if (formKey.currentState!.validate()) {
-                                      context.read<AuthBlocBloc>().add(
-                                        LoginEvent(
-                                          email: emailController.text,
-                                          password: passwordController.text,
-                                        ),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.red.shade500,
-                                          content: Text('Login failed'),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: ColorConstant.MainWhite,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
+                              ////////// Button section/////////
+                              ///////////// Button section/////////
+                              ContainerButton(
+                                title: "Sign In",
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    context.read<AuthBlocBloc>().add(
+                                      LoginEvent(
+                                        email: emailController.text,
+                                        password: passwordController.text,
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: Colors.red.shade500,
+                                        content: Text('Login failed'),
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                               SizedBox(height: 49.5),
                               Row(

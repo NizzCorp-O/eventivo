@@ -1,4 +1,6 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
+import 'package:eventivo/core/utils%20/fonts.dart';
+import 'package:eventivo/features/auth/presentation/utils/validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +55,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         title: const Text(
           "Forgot Password",
           style: TextStyle(
+            fontFamily: CustomFontss.fontFamily,
             fontWeight: FontWeight.w600,
             fontSize: 18,
             color: Colors.black,
@@ -90,15 +93,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 7),
                   TextFormField(
                     controller: emailController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter your email";
-                      }
-                      if (!value.contains("@")) {
-                        return "Enter a valid email";
-                      }
-                      return null;
-                    },
+                    validator: (value) => InputValidator.validateEmail(value),
                     decoration: InputDecoration(
                       prefixIcon: Icon(
                         Icons.email_outlined,

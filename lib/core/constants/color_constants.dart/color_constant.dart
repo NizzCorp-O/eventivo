@@ -10,4 +10,6 @@ class ColorConstant {
   static const Color GradientColor2 = Color(0xFFEAB308);
   static const Color InputBorder = Color(0xFFE5E7EB);
   static const Color InputText = Color(0xFFADAEBC);
+  static const Color Subtittle = Color(0xFF4B5563);
+  
 }
