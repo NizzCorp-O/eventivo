@@ -1,4 +1,3 @@
-
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/chat_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/participant_home_screen.dart';
@@ -26,7 +25,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       case 1:
         return ChatScreen();
       case 2:
-        return profile_screen();
+        return ProfileScreen();
       default:
         return ParticipantHomeScreen();
     }

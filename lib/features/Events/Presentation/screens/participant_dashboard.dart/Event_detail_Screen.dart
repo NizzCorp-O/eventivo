@@ -1,6 +1,5 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/botto_naigation.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/container_button.dart';
 import 'package:flutter/material.dart';
 
