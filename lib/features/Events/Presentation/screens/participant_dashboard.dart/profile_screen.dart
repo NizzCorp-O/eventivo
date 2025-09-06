@@ -1,6 +1,10 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Presentation/widgets/buildDot.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/event_creation_screen.dart';
+import 'package:eventivo/features/Events/Presentation/widgets/my_events.dart';
+import 'package:eventivo/features/Events/Presentation/widgets/upcoming_events.dart';
+import 'package:eventivo/features/auth/presentation/pages/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -122,6 +126,9 @@ class ProfileScreen extends StatelessWidget {
                 //////////////// UPCOMING EVENTS /////////////
                 ...List.generate(2, (index) => UpcomingEvent()),
                 SizedBox(height: 20),
+
+                ///////////// ADD EVENT SECTION /////////////
+                ///////////// ADD EVENT SECTION /////////////
                 Row(
                   children: [
                     Text(
@@ -133,198 +140,81 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     Spacer(),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 9,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.add, color: ColorConstant.MainWhite),
-                          SizedBox(width: 5),
-                          Text(
-                            "Create Event",
-                            style: TextStyle(color: ColorConstant.MainWhite),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EventCreationScreen(),
                           ),
-                        ],
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Color(0xFF1A237E),
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 9,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.add, color: ColorConstant.MainWhite),
+                            SizedBox(width: 5),
+                            Text(
+                              "Create Event",
+                              style: TextStyle(color: ColorConstant.MainWhite),
+                            ),
+                          ],
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: ColorConstant.PrimaryBlue
+                        ),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6, top: 6),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: ColorConstant.InputBorder.withOpacity(0.3),
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: AssetImage(
-                                    "assets/images/img (4).png",
-                                  ),
-                                ),
-                              ),
-                              height: 48,
-                              width: 48,
-                            ),
-                            SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Networking Mixer",
-                                  style: TextStyle(
-                                    fontFamily: CustomFontss.fontFamily,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Text("Jan 15, 2024"),
-                                    SizedBox(width: 10),
-                                    CircleAvatar(
-                                      radius: 3,
-                                      backgroundColor: ColorConstant.MainBlack,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text("09:00 AM"),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Spacer(),
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 4,
-                                  backgroundColor: Colors.green,
-                                ),
-                                SizedBox(width: 6),
-                                Text(
-                                  "Active",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                ////////////// MY EVENT ///////////////////
+                ///////////// MY EVENT ///////////////////
+                ...List.generate(3, (index) => My_Events()),
+
+                SizedBox(height: 20),
+                Center(
+                  child: InkWell(
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                    //////// Logout Button //////
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: ColorConstant.GradientColor1,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Logout",
+                          style: TextStyle(
+                            fontFamily: CustomFontss.fontFamily,
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "32 participants",
-                              style: TextStyle(color: ColorConstant.MainBlack),
-                            ),
-                            Text(
-                              "Manage",
-                              style: TextStyle(
-                                color: ColorConstant.GradientColor1,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
+
                 SizedBox(height: 20),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-///////////////////////////////////////// UpcomingEventContainer ////////////////////////
-///////////////////////////////////////// UpcomingEventContainer ////////////////////////
-class UpcomingEvent extends StatelessWidget {
-  const UpcomingEvent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6, top: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: ColorConstant.InputBorder.withOpacity(0.3),
-        ),
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage("assets/images/hall.png"),
-                ),
-              ),
-              height: 48,
-              width: 48,
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Tech conference 2024 ",
-                    maxLines: 1,
-                    // softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: CustomFontss.fontFamily,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text("Jan 15, 2024"),
-                      SizedBox(width: 10),
-                      CircleAvatar(
-                        radius: 3,
-                        backgroundColor: ColorConstant.MainBlack,
-                      ),
-                      SizedBox(width: 10),
-                      Text("09:00 AM"),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 8),
-            CircleAvatar(
-              radius: 4,
-              backgroundColor: ColorConstant.GradientColor2,
-            ),
-          ],
         ),
       ),
     );
