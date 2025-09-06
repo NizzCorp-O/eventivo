@@ -9,6 +9,12 @@ class AddEventEvent extends EventEvent {
 }
 
 class PickImageEvent extends EventEvent {}
+// class AddImageEvent extends EventEvent{
+
+// final XFile image;
+// AddImageEvent(this.image);
+
+// }
 
 class RemoveImageEvent extends EventEvent {
   final int index;
@@ -21,3 +27,15 @@ class UploadImagesEvent extends EventEvent {
 
   UploadImagesEvent({required this.images});
 }
+
+class PickDate extends EventEvent {
+  final DateTime date;
+  PickDate(this.date);
+}
+
+class PickTime extends EventEvent {
+  final TimeOfDay time;
+  PickTime(this.time);
+}
+
+class ClearDateTime extends EventEvent {}
