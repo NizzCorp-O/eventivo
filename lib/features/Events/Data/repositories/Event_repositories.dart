@@ -1,70 +1,54 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+// import your EventModel class
 
 class EventRepository {
-  final List<XFile> imageslist = [];
-  // List<XFile> get imagesList => List.unmodifiable(imagesList);
+  XFile? imagefile;
+  List<XFile> imageslist = [];
+
+  // Create event in Firestore
   Future<void> createEvent(EventModel event) async {
     await FirebaseFirestore.instance.collection('events').add(event.toMap());
   }
 
+  // Pick image from gallery and upload to Firebase Storage
   Future<void> pickMedia() async {
-    final pickedFile = await ImagePicker().pickImage(
+    final imagefile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
 
-    if (pickedFile != null) {
-      final file = File(pickedFile.path);
-
-      // unique file name
-      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-
-      // reference to Firebase Storage
-      final ref = FirebaseStorage.instance.ref().child(
-        'event_images/$fileName.jpg',
-      );
-
-      // upload
-      await ref.putFile(file);
-
-      // get download URL
-      final url = await ref.getDownloadURL();
-
-      print("Uploaded ✅ URL: $url");
+    if (imagefile == null) {
+      throw Exception("No image selected");
     }
 
-    // if (imageslist.length >= 5) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       backgroundColor: Colors.blueGrey,
-    //       content: Text("Warning: Maximum 5 media allowed"),
-    //     ),
-    //   );
-    // }
+    final file = File(imagefile.path);
+
+    // unique file name
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final ext = imagefile.name.split('.').last;
+
+    // Firebase Storage reference
+    final ref = FirebaseStorage.instance.ref().child(
+      'event_images/$fileName.$ext',
+    );
+
+    // upload file
+    await ref.putFile(file);
+
+    // get download URL
+    final url = await ref.getDownloadURL();
+    print("Uploaded ✅ URL: $url");
+
+    // add to images list
+    imageslist.add(imagefile);
+    print("IMGES LIST$imageslist");
   }
 
-  void removeImage(int index) {
-    imageslist.removeAt(index);
-  }
-
-  Future<List<String>> uploadImages(List<XFile> images) async {
-    // Map each image to a Future of its download URL
-    final uploadTasks = images.map((image) async {
-      final file = File(image.path);
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}.jpg'; // simple unique name
-      final ref = FirebaseStorage.instance.ref().child(
-        'event_images/$fileName',
-      );
-
-      await ref.putFile(file); // Upload file
-      return await ref.getDownloadURL(); // Get the download URL
-    });
-
-    return await Future.wait(uploadTasks);
+  // Optionally remove image from list
+  void removeImage(XFile image) {
+    imageslist.remove(image);
   }
 }
