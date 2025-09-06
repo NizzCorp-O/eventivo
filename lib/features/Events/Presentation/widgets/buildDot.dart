@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class BuildDot extends StatelessWidget {
   final bool isActive;
-
+  
   const BuildDot({Key? key, required this.isActive}) : super(key: key);
 
   @override
