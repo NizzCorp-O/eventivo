@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
+import 'package:eventivo/features/Events/Data/repositories/Event_repositories.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class EventCreationScreen extends StatelessWidget {
@@ -10,15 +14,9 @@ class EventCreationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final EventRepository eventrepo = EventRepository();
     TextEditingController dateController = TextEditingController();
     TextEditingController timeController = TextEditingController();
-
-    List<String> images = [
-      "assets/images/div (2).png",
-      "assets/images/hall.png",
-      "assets/images/img (2).png",
-      "assets/images/img (4).png",
-    ];
 
     return Scaffold(
       backgroundColor: ColorConstant.MainWhite,
@@ -50,7 +48,7 @@ class EventCreationScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 16),
                   Text(
-                    "Event name",
+                    "Event Details",
                     style: TextStyle(
                       fontFamily: CustomFontss.fontFamily,
                       fontWeight: FontWeight.w500,
@@ -68,6 +66,7 @@ class EventCreationScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       hintText: "Enter event name",
+                      hintStyle: TextStyle(color: ColorConstant.InputText),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           color: ColorConstant.InputBorder,
@@ -92,6 +91,7 @@ class EventCreationScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       hintText: "Venue",
+                      hintStyle: TextStyle(color: ColorConstant.InputText),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           color: ColorConstant.InputBorder,
@@ -130,12 +130,15 @@ class EventCreationScreen extends StatelessWidget {
                                     ),
 
                                     hintText: "Date",
+                                    hintStyle: TextStyle(
+                                      color: ColorConstant.InputText,
+                                    ),
                                     prefixIcon: InkWell(
                                       onTap: () async {
                                         final pickedDate = await showDatePicker(
                                           context: context,
                                           initialDate: DateTime.now(),
-                                          firstDate: DateTime(2000),
+                                          firstDate: DateTime.now(),
                                           lastDate: DateTime(2100),
                                         );
                                         if (pickedDate != null) {
@@ -147,7 +150,10 @@ class EventCreationScreen extends StatelessWidget {
                                           );
                                         }
                                       },
-                                      child: Icon(Icons.calendar_today),
+                                      child: Icon(
+                                        Icons.calendar_today,
+                                        color: ColorConstant.GradientColor2,
+                                      ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
@@ -173,7 +179,10 @@ class EventCreationScreen extends StatelessWidget {
                                 fillColor: ColorConstant.textfieldBG,
                                 filled: true,
 
-                                hintText: "--:-- --",
+                                hintText: "Time",
+                                hintStyle: TextStyle(
+                                  color: ColorConstant.InputText,
+                                ),
                                 prefixIcon: InkWell(
                                   onTap: () async {
                                     final pickedTime = await showTimePicker(
@@ -186,7 +195,10 @@ class EventCreationScreen extends StatelessWidget {
                                       );
                                     }
                                   },
-                                  child: Icon(Icons.access_time),
+                                  child: Icon(
+                                    Icons.access_time,
+                                    color: ColorConstant.GradientColor2,
+                                  ),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -213,7 +225,11 @@ class EventCreationScreen extends StatelessWidget {
                               ),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            labelText: "Entry Fee",
+                            hintText: "Entry Fee",
+                            hintStyle: TextStyle(
+                              color: ColorConstant.InputText,
+                            ),
+
                             prefixText: "\$ ",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -233,7 +249,11 @@ class EventCreationScreen extends StatelessWidget {
                               ),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            labelText: "Offer Price",
+                            hintText: "Offer Price",
+
+                            hintStyle: TextStyle(
+                              color: ColorConstant.InputText,
+                            ),
                             prefixText: "\$ ",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -257,8 +277,10 @@ class EventCreationScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      labelText: "Available Slots",
-                      hintText: "Enter number of slots",
+
+                      hintText: "Available Slote",
+
+                      hintStyle: TextStyle(color: ColorConstant.InputText),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -267,53 +289,53 @@ class EventCreationScreen extends StatelessWidget {
                   SizedBox(height: 21),
 
                   // Cancellation Time
-                  Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorConstant.InputBorder),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.remove),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: ColorConstant.textfieldBG,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        height: 40,
-                        child: const Center(
-                          child: Text("0", style: TextStyle(fontSize: 18)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade400),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.add),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text("Hrs"),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  // Row(
+                  //   children: [
+                  //     Container(
+                  //       decoration: BoxDecoration(
+                  //         border: Border.all(color: ColorConstant.InputBorder),
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //       child: IconButton(
+                  //         onPressed: () {},
+                  //         icon: const Icon(Icons.remove),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 8),
+                  //     Container(
+                  //       width: 100,
+                  //       decoration: BoxDecoration(
+                  //         color: ColorConstant.textfieldBG,
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //       height: 40,
+                  //       child: const Center(
+                  //         child: Text("0", style: TextStyle(fontSize: 18)),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 8),
+                  //     Container(
+                  //       decoration: BoxDecoration(
+                  //         border: Border.all(color: Colors.grey.shade400),
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //       child: IconButton(
+                  //         onPressed: () {},
+                  //         icon: const Icon(Icons.add),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 8),
+                  //     const Text("Hrs"),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 20),
 
                   // ---------------- Media Gallery Section ----------------
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "Media Gallery",
+                        "Choose Media",
                         style: TextStyle(
                           fontFamily: CustomFontss.fontFamily,
                           fontSize: 18,
@@ -321,7 +343,7 @@ class EventCreationScreen extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
                           context.read<EventBloc>().add(PickImageEvent());
                         },
                         child: Container(
@@ -351,7 +373,7 @@ class EventCreationScreen extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                "Choose media",
+                                "Open gallery",
                                 style: TextStyle(
                                   fontFamily: CustomFontss.fontFamily,
                                   fontSize: 16,
@@ -367,28 +389,61 @@ class EventCreationScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 21),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GridView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: images.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                mainAxisExtent: 100,
-                                mainAxisSpacing: 10,
-
-                                crossAxisCount: 3,
+                  BlocListener<EventBloc, EventState>(
+                    listener: (context, state) {},
+                    child: BlocBuilder<EventBloc, EventState>(
+                      builder: (context, state) {
+                        if (state is EventLoaded && state.images.isNotEmpty) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: GridView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: state.images.length > 5
+                                      ? 5
+                                      : state.images.length,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        mainAxisSpacing: 10,
+                                        mainAxisExtent: 100,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    return MediaSection(
+                                      onTap: () {
+                                        context.read<EventBloc>().add(
+                                          RemoveImageEvent(index: index),
+                                        );
+                                      },
+                                      mediaUrl: state.images[index],
+                                    );
+                                  },
+                                ),
                               ),
-                          itemBuilder: (context, index) =>
-                              MediaSection(mediaUrl: images[index]),
-                        ),
-                      ),
+                              const SizedBox(width: 12),
+                            ],
+                          );
+                        }
 
-                      SizedBox(width: 12),
-                    ],
+                        return Container(
+                          child: Icon(
+                            Icons.image_rounded,
+                            size: 40,
+                            color: ColorConstant.GradientColor1,
+                          ),
+                          width: 100,
+                          height: 100,
+                          margin: const EdgeInsets.only(right: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        );
+                      },
+                    ),
                   ),
+
                   const SizedBox(height: 20),
 
                   // Cancel & Create Buttons
@@ -438,8 +493,9 @@ class EventCreationScreen extends StatelessWidget {
 }
 
 class MediaSection extends StatelessWidget {
-  final String mediaUrl;
-  const MediaSection({super.key, required this.mediaUrl});
+  final XFile mediaUrl;
+  final void Function()? onTap;
+  const MediaSection({super.key, required this.mediaUrl, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -452,7 +508,7 @@ class MediaSection extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             image: DecorationImage(
-              image: AssetImage(mediaUrl),
+              image: FileImage(File(mediaUrl.path)),
               fit: BoxFit.cover,
             ),
           ),
@@ -461,7 +517,7 @@ class MediaSection extends StatelessWidget {
           right: 12,
           top: 0,
           child: GestureDetector(
-            onTap: () {},
+            onTap: onTap,
             child: Container(
               decoration: const BoxDecoration(
                 color: Colors.black54,
