@@ -4,13 +4,26 @@ import 'package:flutter/material.dart';
 
 class EventCard extends StatelessWidget {
   final String URL;
+  final String Eventname;
+  final String date;
+  final String time;
+  final String venue;
+
   final void Function()? onTap;
-  const EventCard({super.key, this.onTap, required this.URL});
+  const EventCard({
+    super.key,
+    this.onTap,
+    required this.URL,
+    required this.Eventname,
+    required this.date,
+    required this.time,
+    required this.venue,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 24, bottom: 4, top: 18, right: 24),
+      padding: const EdgeInsets.only(left: 24, top: 10, right: 24),
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -34,7 +47,7 @@ class EventCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: AssetImage(URL),
+                          image: NetworkImage(URL),
                         ),
 
                         borderRadius: BorderRadius.circular(10),
@@ -51,7 +64,7 @@ class EventCard extends StatelessWidget {
                           softWrap: true,
                           overflow: TextOverflow.visible,
 
-                          "Happy new year",
+                          Eventname,
                           style: TextStyle(
                             fontFamily: CustomFontss.fontFamily,
                             fontWeight: FontWeight.w500,
@@ -69,9 +82,9 @@ class EventCard extends StatelessWidget {
                             SizedBox(width: 6),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [Text("Dec14,"), Text("2025")],
+                              children: [Text(date)],
                             ),
-                            SizedBox(width: 20),
+                            SizedBox(width: 10),
                             Row(
                               children: [
                                 Icon(
@@ -79,10 +92,12 @@ class EventCard extends StatelessWidget {
                                   color: ColorConstant.GradientColor1,
                                   size: 20,
                                 ),
-                                SizedBox(width: 6),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [Text("09.00"), Text("Am")],
+                                SizedBox(width: 2),
+
+                                Text(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  time,
                                 ),
                               ],
                             ),
@@ -102,12 +117,12 @@ class EventCard extends StatelessWidget {
                                 // allow wrapping
                                 overflow: TextOverflow.visible,
                                 maxLines: 1,
-                                "Crown plaza Kochi",
+                                venue,
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 17),
+                        SizedBox(height: 10),
                       ],
                     ),
                   ),
