@@ -1,6 +1,8 @@
 import 'package:eventivo/features/Events/Data/repositories/Event_repositories.dart';
+import 'package:eventivo/features/Events/Data/repositories/chat_repositories.dart';
+import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Bottom_navigation_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/splash_screen.dart';
 import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
 import 'package:eventivo/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,6 +20,7 @@ Future<void> main() async {
         BlocProvider<EventBloc>(
           create: (context) => EventBloc(eventRepository: EventRepository()),
         ),
+        BlocProvider<ChatBloc>(create: (context) => ChatBloc(ChatRepository())),
       ],
       child: MyApp(),
     ),
@@ -29,6 +32,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: MyHomePage());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen());
   }
 }

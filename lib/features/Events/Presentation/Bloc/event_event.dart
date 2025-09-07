@@ -7,14 +7,17 @@ class AddEventEvent extends EventEvent {
 
   AddEventEvent({required this.eventModel});
 }
+class getEvents extends EventEvent{
 
+
+}
 class PickImageEvent extends EventEvent {}
-// class AddImageEvent extends EventEvent{
+class AddImageEvent extends EventEvent{
 
-// final XFile image;
-// AddImageEvent(this.image);
+final XFile image;  
+AddImageEvent(this.image);
 
-// }
+}
 
 class RemoveImageEvent extends EventEvent {
   final int index;

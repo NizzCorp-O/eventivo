@@ -15,9 +15,7 @@ class AdminHomeScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const AdminEventCreationScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => EventCreationScreen()),
           );
         },
         child: Icon(Icons.add, color: Colors.black),

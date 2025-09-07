@@ -1,46 +1,52 @@
 class EventModel {
   final String id;
-  final String title;
+  final String name;
+  final String venue;
   final String date;
   final String time;
-  final String location;
-  final double entryFee;
-  final double offerPrice;
-  final List<String> imageUrl; // <-- New field (URL from Firebase Storage)
+  final String entryFee;
+  final String offerPrice;
+  final String availableSlot;
+  final List<String> imageUrls; // multiple images
 
-  EventModel(this.time, this.entryFee, this.offerPrice, {
+  EventModel({
     required this.id,
-    required this.title,
+    required this.name,
+    required this.venue,
     required this.date,
-    required this.location,
-    required this.imageUrl,
+    required this.time,
+    required this.entryFee,
+    required this.offerPrice,
+    required this.availableSlot,
+    required this.imageUrls,
   });
 
-  // Convert to Map
+  // Firestore-lekku data map aakkunna function
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'title': title,
+      'name': name,
+      'venue': venue,
       'date': date,
-      'location': location,
-      'imageUrl': imageUrl, 
-      "time": time,
-      "offerPrice":offerPrice,
-      "entryFee": entryFee
-      // Save URL as String
+      'time': time,
+      'entryFee': entryFee,
+      'offerPrice': offerPrice,
+      'availableSlot': availableSlot,
+      'imageUrls': imageUrls,
     };
   }
 
-  // Create from Map
-  // factory EventModel.fromMap(Map<String, dynamic> map) {
-  //   return EventModel(
-     
-  //     id: map['id'] ?? '',
-  //     title: map['title'] ?? '',
-  //     date: map['date'] ?? '',
-  //     location: map['location'] ?? '',
-  //     imageUrl: List<String>.from(map['imageUrls'] ?? [],
-  //     ),
-  //   );
-  // }
+  // Firestore-il ninnu data map cheythu model aakkunna function
+  factory EventModel.fromMap(String id, Map<String, dynamic> map) {
+    return EventModel(
+      id: id,
+      name: map['name'] ?? '',
+      venue: map['venue'] ?? '',
+      date: map['date'] ?? '',
+      time: map['time'] ?? '',
+      entryFee: map['entryFee'] ?? '',
+      offerPrice: map['offerPrice'] ?? '',
+      availableSlot: map['availableSlot'] ?? '',
+      imageUrls: List<String>.from(map['imageUrls'] ?? []),
+    );
+  }
 }
