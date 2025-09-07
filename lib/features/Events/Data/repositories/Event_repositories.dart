@@ -3,10 +3,11 @@ import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import your EventModel class
+
 
 class EventRepository {
   XFile? imagefile;
+  List<String> imageUrls = [];
   List<XFile> imageslist = [];
 
   // Create event in Firestore
@@ -14,37 +15,34 @@ class EventRepository {
     await FirebaseFirestore.instance.collection('events').add(event.toMap());
   }
 
-  // Pick image from gallery and upload to Firebase Storage
+  // Pick multiple images
   Future<void> pickMedia() async {
-    final imagefile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final pickedFiles = await ImagePicker().pickMultiImage();
 
-    if (imagefile == null) {
-      throw Exception("No image selected");
+    if (pickedFiles.isEmpty) throw Exception("No images selected");
+
+    for (var file in pickedFiles) {
+      final localFile = File(file.path);
+      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final ext = file.name.split('.').last;
+      final ref = FirebaseStorage.instance.ref().child(
+        'event_images/$fileName.$ext',
+      );
+
+      await ref.putFile(localFile);
+      final url = await ref.getDownloadURL();
+
+      imageslist.add(file);
+      imageUrls.add(url);
     }
-
-    final file = File(imagefile.path);
-
-    // unique file name
-    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final ext = imagefile.name.split('.').last;
-
-    // Firebase Storage reference
-    final ref = FirebaseStorage.instance.ref().child(
-      'event_images/$fileName.$ext',
-    );
-
-    // upload file
-    await ref.putFile(file);
-
-    // get download URL
-    final url = await ref.getDownloadURL();
-    print("Uploaded ✅ URL: $url");
-
-    // add to images list
-    imageslist.add(imagefile);
-    print("IMGES LIST$imageslist");
+  }
+    Future<List<EventModel>> getEvents() async {
+    final snapshot =  await FirebaseFirestore.instance.collection('events').get();
+    return snapshot.docs.map((doc) {
+      return EventModel.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+    }).toList();
+    
+    
   }
 
   // Optionally remove image from list
