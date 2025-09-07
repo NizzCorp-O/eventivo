@@ -1,9 +1,11 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
+import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Event_detail_Screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/event_card.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/event_widgets/filtered_events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ParticipantHomeScreen extends StatefulWidget {
   const ParticipantHomeScreen({super.key});
@@ -13,15 +15,14 @@ class ParticipantHomeScreen extends StatefulWidget {
 }
 
 class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
+  void initState() {
+    super.initState();
+    context.read<EventBloc>().add(getEvents());
+  }
+
   int selectedindex = 0;
   @override
   Widget build(BuildContext context) {
-    List<String> EventsUrl = [
-      "assets/images/hall.png",
-      "assets/images/img (3).png",
-      "assets/images/img (4).png",
-      "assets/images/img (2).png",
-    ];
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorConstant.MainWhite,
@@ -138,41 +139,46 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                     /////// EVENT FILTERING SECTION ///////
                     //////// EVENT FILTERING SECTION //////
                     /////////// EVENT FILTERING SECTION ////
-                    Row(
-                      children: [
-                        FilteredContainer(
-                          onTap: () {
-                            setState(() {
-                              selectedindex = 0;
-                            });
-                          },
-                          tittle: "Today",
-                          selectedindex: selectedindex == 0,
-                          icons: Icons.today_outlined,
-                        ),
-                        SizedBox(width: 12),
-                        FilteredContainer(
-                          onTap: () {
-                            setState(() {
-                              selectedindex = 1;
-                            });
-                          },
-                          icons: Icons.calendar_today_rounded,
-                          tittle: "This Week",
-                          selectedindex: selectedindex == 1,
-                        ),
-                        SizedBox(width: 12),
-                        FilteredContainer(
-                          onTap: () {
-                            setState(() {
-                              selectedindex = 2;
-                            });
-                          },
-                          tittle: "Filter",
-                          selectedindex: selectedindex == 2,
-                          icons: Icons.filter_list_rounded,
-                        ),
-                      ],
+                    BlocListener<EventBloc, EventState>(
+                      listener: (context, state) {
+                        if (state is EventLoading) {}
+                      },
+                      child: Row(
+                        children: [
+                          FilteredContainer(
+                            onTap: () {
+                              setState(() {
+                                selectedindex = 0;
+                              });
+                            },
+                            tittle: "Today",
+                            selectedindex: selectedindex == 0,
+                            icons: Icons.today_outlined,
+                          ),
+                          SizedBox(width: 12),
+                          FilteredContainer(
+                            onTap: () {
+                              setState(() {
+                                selectedindex = 1;
+                              });
+                            },
+                            icons: Icons.calendar_today_rounded,
+                            tittle: "This Week",
+                            selectedindex: selectedindex == 1,
+                          ),
+                          SizedBox(width: 12),
+                          FilteredContainer(
+                            onTap: () {
+                              setState(() {
+                                selectedindex = 2;
+                              });
+                            },
+                            tittle: "Filter",
+                            selectedindex: selectedindex == 2,
+                            icons: Icons.filter_list_rounded,
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 24),
                   ],
@@ -182,21 +188,54 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
             ////// EVENT CARD SECTION ////////
             ///////// EVENT CARD SECTION //////
             ///////// EVENT CARD SECTION ////////
-            SliverList.separated(
-              itemCount: EventsUrl.length,
-              itemBuilder: (context, index) => EventCard(
-                URL: EventsUrl[index],
-
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventDetailScreen(),
+            BlocBuilder<EventBloc, EventState>(
+              builder: (context, state) {
+                if (state is EventLoading) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: ColorConstant.CircularProgressIndicator,
+                        backgroundColor:
+                            ColorConstant.CircularProgressIndicatorBG,
+                      ),
                     ),
                   );
-                },
-              ),
-              separatorBuilder: (context, index) => SizedBox(),
+                } else if (state is EventFetched) {
+                  if (state.Events.isEmpty) {
+                    // Show "No data" if list is empty
+                    return SliverToBoxAdapter(
+                      child: Center(child: Text(" data")),
+                    );
+                  }
+                  return SliverList.separated(
+                    itemCount: state.Events.length,
+                    itemBuilder: (context, index) {
+                      final event = state.Events[index];
+                      return EventCard(
+                        URL: event.imageUrls[0],
+                        date: event.date,
+                        time: event.time,
+                        venue: event.venue,
+                        Eventname: event.name,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EventDetailScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    separatorBuilder: (context, index) => SizedBox(height: 16),
+                  );
+                }
+
+                // Optional: handle unexpected state
+                return SliverToBoxAdapter(
+                  child: Center(child: Text("No data")),
+                );
+              },
             ),
           ],
         ),
