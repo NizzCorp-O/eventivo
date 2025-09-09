@@ -6,8 +6,9 @@ class EventInitial extends EventState {}
 
 class EventLoaded extends EventState {
   final List<XFile> images;
+  final List<String> imageUrls;
 
-  EventLoaded({required this.images});
+  EventLoaded( {required this.images, required this.imageUrls});
 }
 
 class EventFetched extends EventState {
@@ -32,32 +33,42 @@ class UploadImages extends EventState {
 
 class EventFormState extends EventState {
   final DateTime? date;
-  final TimeOfDay? time;
+  final TimeOfDay? starttime;
+  final TimeOfDay? endtime;
   final String? dateString;
-  final String? timeString;
+  final String? starttimeString;
+  final String? endtimeString;
   final bool isValid;
 
   EventFormState({
     this.date,
-    this.time,
+    this.starttime,
+    this.endtime,
     this.dateString,
-    this.timeString,
+    this.starttimeString,
+    this.endtimeString,
     this.isValid = false,
   });
 
+  // CopyWith method
   EventFormState copyWith({
     DateTime? date,
-    TimeOfDay? time,
+    TimeOfDay? starttime,
+    TimeOfDay? endtime,
     String? dateString,
-    String? timeString,
+    String? starttimeString,
+    String? endtimeString,
     bool? isValid,
   }) {
     return EventFormState(
       date: date ?? this.date,
-      time: time ?? this.time,
+      starttime: starttime ?? this.starttime,
+      endtime: endtime ?? this.endtime,
       dateString: dateString ?? this.dateString,
-      timeString: timeString ?? this.timeString,
+      starttimeString: starttimeString ?? this.starttimeString,
+      endtimeString: endtimeString ?? this.endtimeString,
       isValid: isValid ?? this.isValid,
     );
   }
 }
+

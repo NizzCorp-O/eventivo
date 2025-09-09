@@ -2,8 +2,10 @@ class EventModel {
   final String id;
   final String name;
   final String venue;
+  final String Address;
   final String date;
-  final String time;
+  final String starttime;
+  final String endtime;
   final String entryFee;
   final String offerPrice;
   final String availableSlot;
@@ -13,8 +15,10 @@ class EventModel {
     required this.id,
     required this.name,
     required this.venue,
+    required this.Address,
     required this.date,
-    required this.time,
+    required this.starttime,
+    required this.endtime,
     required this.entryFee,
     required this.offerPrice,
     required this.availableSlot,
@@ -26,8 +30,10 @@ class EventModel {
     return {
       'name': name,
       'venue': venue,
+      "address": Address,
       'date': date,
-      'time': time,
+      'starttime': starttime,
+      "endtime": endtime,
       'entryFee': entryFee,
       'offerPrice': offerPrice,
       'availableSlot': availableSlot,
@@ -41,8 +47,10 @@ class EventModel {
       id: id,
       name: map['name'] ?? '',
       venue: map['venue'] ?? '',
+      Address: map['address'] ?? '',
       date: map['date'] ?? '',
-      time: map['time'] ?? '',
+      starttime: map['starttime'] ?? '',
+      endtime: map['endtime'] ?? '',
       entryFee: map['entryFee'] ?? '',
       offerPrice: map['offerPrice'] ?? '',
       availableSlot: map['availableSlot'] ?? '',

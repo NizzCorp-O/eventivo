@@ -11,7 +11,9 @@ class getEvents extends EventEvent{
 
 
 }
-class PickImageEvent extends EventEvent {}
+class PickImageEvent extends EventEvent {
+  
+}
 class AddImageEvent extends EventEvent{
 
 final XFile image;  
@@ -36,9 +38,15 @@ class PickDate extends EventEvent {
   PickDate(this.date);
 }
 
-class PickTime extends EventEvent {
+class PickedStartTime extends EventEvent {
   final TimeOfDay time;
-  PickTime(this.time);
+  PickedStartTime(this.time);
+}
+class PickedEndTime extends EventEvent{
+  final TimeOfDay endtime;
+
+  PickedEndTime( this.endtime);
+  
 }
 
 class ClearDateTime extends EventEvent {}

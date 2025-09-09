@@ -20,8 +20,10 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             id: event.eventModel.id,
             name: event.eventModel.name,
             venue: event.eventModel.venue,
+            Address: event.eventModel.Address,
             date: event.eventModel.date,
-            time: event.eventModel.time,
+            starttime: event.eventModel.starttime,
+            endtime: event.eventModel.endtime,
             entryFee: event.eventModel.entryFee,
             offerPrice: event.eventModel.offerPrice,
             availableSlot: event.eventModel.availableSlot,
@@ -48,24 +50,50 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       emit(EventLoading());
       try {
         await eventRepository.pickMedia();
-        emit(EventLoaded(images: eventRepository.imageslist));
+        emit(
+          EventLoaded(
+            images: List<XFile>.from(eventRepository.imageslist),
+            imageUrls: List<String>.from(eventRepository.imageUrls),
+          ),
+        );
       } catch (e) {
         // If user cancels, retain exist
         if (e.toString().contains("No image selected")) {
-          emit(EventLoaded(images: eventRepository.imageslist));
+          emit(
+            EventLoaded(
+              images: List<XFile>.from(eventRepository.imageslist),
+              imageUrls: List<String>.from(eventRepository.imageUrls),
+            ),
+          );
         } else {
           emit(EventError(e.toString()));
         }
       }
     });
+
     on<RemoveImageEvent>((event, emit) {
-      final currentImages = List<XFile>.from(eventRepository.imageslist);
-      if (event.index >= 0 && event.index < currentImages.length) {
-        currentImages.removeAt(event.index);
-        eventRepository.imageslist = currentImages;
-        emit(EventLoaded(images: currentImages));
-      }
+      eventRepository.removeImage(event.index);
+      emit(
+        EventLoaded(
+          images: List<XFile>.from(eventRepository.imageslist),
+          imageUrls: List<String>.from(eventRepository.imageUrls),
+        ),
+      );
     });
+
+    // on<RemoveImageEvent>((event, emit) {
+    //   final currentImages = List<XFile>.from(eventRepository.imageslist);
+    //   if (event.index >= 0 && event.index < currentImages.length) {
+    //     currentImages.removeAt(event.index);
+    //     eventRepository.imageslist = currentImages;
+    //     emit(
+    //       EventLoaded(
+    //         images: currentImages,
+    //         imageUrls: eventRepository.imageUrls,
+    //       ),
+    //     );
+    //   }
+    // });
 
     // on<UploadImagesEvent>((event, emit) async {
     //   emit(EventLoading());
@@ -82,37 +110,59 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         EventFormState(
           date: event.date,
           dateString: formatted,
-          time: (state is EventFormState)
-              ? (state as EventFormState).time
+          starttime: (state is EventFormState)
+              ? (state as EventFormState).starttime
               : null,
-          timeString: (state is EventFormState)
-              ? (state as EventFormState).timeString
+          starttimeString: (state is EventFormState)
+              ? (state as EventFormState).starttimeString
               : null,
+          endtime: (state is EventFormState)
+              ? (state as EventFormState).endtime
+              : null,
+
           isValid: (state is EventFormState)
-              ? (state as EventFormState).time != null
+              ? (state as EventFormState).starttime != null
               : false,
         ),
       );
     });
-    on<PickTime>((event, emit) {
-      final dt = DateTime(0, 0, 0, event.time.hour, event.time.minute);
+    on<PickedStartTime>((event, emit) {
+      final dt = DateTime(2000, 1, 1, event.time.hour, event.time.minute);
       final formatted = DateFormat.jm().format(dt);
+
+      final previousState = state is EventFormState
+          ? state as EventFormState
+          : EventFormState();
+
       emit(
-        EventFormState(
-          time: event.time,
-          timeString: formatted,
-          date: (state is EventFormState)
-              ? (state as EventFormState).date
-              : null,
-          dateString: (state is EventFormState)
-              ? (state as EventFormState).dateString
-              : null,
-          isValid: (state is EventFormState)
-              ? (state as EventFormState).date != null
-              : false,
+        previousState.copyWith(
+          starttime: event.time,
+          starttimeString: formatted,
+          // Optionally update isValid
+          isValid: previousState.date != null,
         ),
       );
     });
+
+    on<PickedEndTime>((event, emit) {
+      final dt = DateTime(2000, 1, 1, event.endtime.hour, event.endtime.minute);
+      final formatted = DateFormat.jm().format(dt);
+
+      final previousState = state is EventFormState
+          ? state as EventFormState
+          : EventFormState();
+
+      emit(
+        previousState.copyWith(
+          endtime: event.endtime,
+          endtimeString: formatted,
+          // Optionally update isValid
+          isValid:
+              previousState.date != null && previousState.starttime != null,
+        ),
+      );
+    });
+
     on<ClearDateTime>((event, emit) {
       emit(EventFormState());
     });
