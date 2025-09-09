@@ -1,8 +1,10 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
+import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -15,35 +17,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   bool isLoading = false;
-
-  Future<void> resetPassword() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => isLoading = true);
-
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: emailController.text.trim(),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Password reset link sent! Check your email."),
-          backgroundColor: Colors.green.shade600,
-        ),
-      );
-      Navigator.pop(context); // go back to login after sending
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? "Something went wrong"),
-          backgroundColor: Colors.red.shade600,
-        ),
-      );
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +68,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     controller: emailController,
                     validator: (value) => InputValidator.validateEmail(value),
                     decoration: InputDecoration(
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red),
+                      ),
                       prefixIcon: Icon(
                         Icons.email_outlined,
                         color: ColorConstant.InputText,
@@ -132,26 +108,52 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        minimumSize: const Size(double.infinity, 56),
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: isLoading ? null : resetPassword,
-                      child: isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              "Send Reset Link",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: ColorConstant.MainWhite,
-                                fontSize: 16,
+                    child: BlocListener<AuthBlocBloc, AuthBlocState>(
+                      listener: (context, state) {
+                        if (state is AuthPasswordResetEmailSent) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.green,
+                              content: Text(
+                                "Password reset email sent! Check your email.",
                               ),
                             ),
+                          );
+                        } else if (state is AuthError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: ${state.message}")),
+                          );
+                        }
+                      },
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          minimumSize: const Size(double.infinity, 56),
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthBlocBloc>().add(
+                              Resetpassword(email: emailController.text),
+                            );
+                          }
+                        },
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                "Send Reset Link",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: ColorConstant.MainWhite,
+                                  fontSize: 16,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
