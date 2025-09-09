@@ -17,3 +17,4 @@ class AuthError extends AuthBlocState {
 
   AuthError({this.message = "An error occurred"});
 }
+class AuthPasswordResetEmailSent extends AuthBlocState {}

@@ -24,3 +24,9 @@ class SignUpEvent extends AuthBlocEvent {
     required this.confirmPassword,
   });
 }
+class Resetpassword extends AuthBlocEvent{
+final  String email;
+
+  Resetpassword({required this.email});
+
+}
