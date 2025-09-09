@@ -40,4 +40,43 @@ class InputValidator {
     }
     return null;
   }
+
+  static String? validateEventName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "event name is required";
+    }
+    return null;
+  }
+
+  static String? validateVenue(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "location is required";
+    }
+    return null;
+  }
+
+  static String? validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Address is required";
+    }
+    return null;
+  }
+    static String? validateDate(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Date is required";
+    }
+    return null;
+  }
+    static String? validateStarttime(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "time is required";
+    }
+    return null;
+  }
+      static String? validateEndTIme(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "time is required";
+    }
+    return null;
+  }
 }
