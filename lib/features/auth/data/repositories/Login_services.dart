@@ -63,4 +63,15 @@ class LoginServices {
       throw Exception("Something went wrong: $e");
     }
   }
+
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+      // Success message
+      print('Password reset email sent!');
+    } on FirebaseAuthException catch (e) {
+      print('Error: ${e.message}');
+    }
+  }
 }
