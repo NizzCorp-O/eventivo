@@ -22,7 +22,7 @@ class UpcomingEvent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: AssetImage("assets/images/hall.png"),
+                  image: AssetImage("assets/images/img (1).png"),
                 ),
               ),
               height: 48,
