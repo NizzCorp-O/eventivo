@@ -1,7 +1,10 @@
+import 'dart:ffi';
+
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
+import 'package:eventivo/core/constants/sizedBox/App_spaces.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Event_detail_Screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/event_detail_Screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/event_card.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/event_widgets/filtered_events.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +107,7 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
               child: Padding(
                 padding: EdgeInsetsGeometry.only(left: 24, right: 24),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 24),
                     TextField(
@@ -141,9 +145,13 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                     /////////// EVENT FILTERING SECTION ////
                     BlocListener<EventBloc, EventState>(
                       listener: (context, state) {
-                        if (state is EventLoading) {}
+                        if (state is EventLoading) {
+                          Center(child: CircularProgressIndicator());
+                        }
+                        if (state is EventLoaded) {}
                       },
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           FilteredContainer(
                             onTap: () {
@@ -155,7 +163,7 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                             selectedindex: selectedindex == 0,
                             icons: Icons.today_outlined,
                           ),
-                          SizedBox(width: 12),
+
                           FilteredContainer(
                             onTap: () {
                               setState(() {
@@ -166,7 +174,7 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                             tittle: "This Week",
                             selectedindex: selectedindex == 1,
                           ),
-                          SizedBox(width: 12),
+
                           FilteredContainer(
                             onTap: () {
                               setState(() {
@@ -191,20 +199,20 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
             BlocBuilder<EventBloc, EventState>(
               builder: (context, state) {
                 if (state is EventLoading) {
-                  return SliverToBoxAdapter(
+                  return SliverFillRemaining(
+                    hasScrollBody: false, // ensures it takes full height
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: ColorConstant.CircularProgressIndicator,
-                        backgroundColor:
-                            ColorConstant.CircularProgressIndicatorBG,
+                        color: ColorConstant.GradientColor1,
+                        backgroundColor: ColorConstant.MainBlack,
                       ),
                     ),
                   );
                 } else if (state is EventFetched) {
                   if (state.Events.isEmpty) {
-                    // Show "No data" if list is empty
-                    return SliverToBoxAdapter(
-                      child: Center(child: Text(" data")),
+                    return SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: Text("No data")),
                     );
                   }
                   return SliverList.separated(
@@ -214,25 +222,35 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                       return EventCard(
                         URL: event.imageUrls[0],
                         date: event.date,
-                        time: event.time,
+                        time: event.starttime,
                         venue: event.venue,
                         Eventname: event.name,
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => EventDetailScreen(),
+                              builder: (context) => EventDetailScreen(
+                                coverphoto: event.imageUrls[0],
+                                events: event,
+                                date: event.date,
+                                endtime: event.endtime,
+                                starttime: event.starttime,
+                                eventName: event.name,
+                                venue: event.venue,
+                                address: event.Address,
+                                imageUrls: event.imageUrls,
+                              ),
                             ),
                           );
                         },
                       );
                     },
-                    separatorBuilder: (context, index) => SizedBox(height: 16),
+                    separatorBuilder: (context, index) => AppSpaces.height16,
                   );
                 }
 
-                // Optional: handle unexpected state
-                return SliverToBoxAdapter(
+                return SliverFillRemaining(
+                  hasScrollBody: false,
                   child: Center(child: Text("No data")),
                 );
               },

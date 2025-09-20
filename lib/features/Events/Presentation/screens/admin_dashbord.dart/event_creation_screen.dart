@@ -9,7 +9,6 @@ import 'package:eventivo/features/Events/Data/repositories/Event_repositories.da
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Bottom_navigation_screen.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/participant_home_screen.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +37,7 @@ class EventCreationScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: ColorConstant.MainWhite,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Create Event",
           style: TextStyle(
             fontSize: 18,
@@ -714,7 +713,7 @@ class EventCreationScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFECACA),
+                              backgroundColor: ColorConstant.CancelClr,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -728,57 +727,67 @@ class EventCreationScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         const SizedBox(width: 12),
+
                         Expanded(
                           child: Container(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: ColorConstant.PrimaryBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () {
-                                if (_formkey.currentState!.validate()) {
-                                  context.read<EventBloc>().add(
-                                    AddEventEvent(
-                                      eventModel: EventModel(
-                                        availableSlot:
-                                            availableSloteController.text,
-                                        entryFee: entryFeeController.text,
-                                        offerPrice: offerPriceController.text,
-                                        imageUrls: eventrepo.imageUrls,
-                                        venue: venueController.text,
-                                        Address: addressController.text,
-                                        id: "",
-                                        name: nameController.text,
-                                        date: dateController.text,
-                                        starttime: starttimeController.text,
-                                        endtime: endtimeController.text,
-                                      ),
+                            child: BlocBuilder<EventBloc, EventState>(
+                              builder: (context, state) {
+                                return ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ColorConstant.GradientColor1,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  );
-                                  nameController.clear();
-                                  venueController.clear();
-                                  dateController.clear();
-                                  starttimeController.clear();
-                                  entryFeeController.clear();
-                                  offerPriceController.clear();
-                                  availableSloteController.clear();
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MyHomePage(),
+                                  ),
+
+                                  onPressed: () {
+                                    if (_formkey.currentState!.validate()) {
+                                      context.read<EventBloc>().add(
+                                        AddEventEvent(
+                                          eventModel: EventModel(
+                                            availableSlot:
+                                                availableSloteController.text,
+                                            entryFee: entryFeeController.text,
+                                            offerPrice:
+                                                offerPriceController.text,
+                                            imageUrls: eventrepo.imageUrls,
+                                            venue: venueController.text,
+                                            Address: addressController.text,
+                                            id: "",
+                                            name: nameController.text,
+                                            date: dateController.text,
+                                            starttime: starttimeController.text,
+                                            endtime: endtimeController.text,
+                                          ),
+                                        ),
+                                      );
+
+                                      nameController.clear();
+                                      venueController.clear();
+                                      dateController.clear();
+                                      starttimeController.clear();
+                                      entryFeeController.clear();
+                                      offerPriceController.clear();
+                                      availableSloteController.clear();
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MyHomePage(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    "Create",
+                                    style: TextStyle(
+                                      color: ColorConstant.MainWhite,
                                     ),
-                                  );
-                                }
+                                  ),
+                                );
                               },
-                              child: Text(
-                                "Create",
-                                style: TextStyle(
-                                  color: ColorConstant.MainWhite,
-                                ),
-                              ),
                             ),
                           ),
                         ),

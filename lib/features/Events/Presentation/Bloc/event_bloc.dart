@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Data/repositories/Event_repositories.dart';
 import 'package:flutter/material.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -15,9 +16,9 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<AddEventEvent>((event, emit) async {
       emit(EventLoading());
       try {
-        await eventRepository.createEvent(
+        final newevent = await eventRepository.createEvent(
           EventModel(
-            id: event.eventModel.id,
+            id: "",
             name: event.eventModel.name,
             venue: event.eventModel.venue,
             Address: event.eventModel.Address,
@@ -30,7 +31,8 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             imageUrls: eventRepository.imageUrls,
           ),
         );
-        emit(EventAdded());
+
+        emit(EventAdded(eventModel: newevent));
       } catch (e) {
         emit(EventError("Failed to add event"));
       }
@@ -81,29 +83,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       );
     });
 
-    // on<RemoveImageEvent>((event, emit) {
-    //   final currentImages = List<XFile>.from(eventRepository.imageslist);
-    //   if (event.index >= 0 && event.index < currentImages.length) {
-    //     currentImages.removeAt(event.index);
-    //     eventRepository.imageslist = currentImages;
-    //     emit(
-    //       EventLoaded(
-    //         images: currentImages,
-    //         imageUrls: eventRepository.imageUrls,
-    //       ),
-    //     );
-    //   }
-    // });
-
-    // on<UploadImagesEvent>((event, emit) async {
-    //   emit(EventLoading());
-    //   try {
-    //     final urls = await eventRepository.(event.images);
-    //     emit(UploadImages(urls));
-    //   } catch (e) {
-    //     emit(EventError("Failed to upload images"));
-    //   }
-    // });
     on<PickDate>((event, emit) {
       final formatted = DateFormat('dd MMM yyyy').format(event.date);
       emit(
@@ -165,6 +144,18 @@ class EventBloc extends Bloc<EventEvent, EventState> {
 
     on<ClearDateTime>((event, emit) {
       emit(EventFormState());
+    });
+
+    on<DeleteEvents>((event, emit) async {
+      emit(EventLoading());
+
+      try {
+        await eventRepository.deleteEvents(event.eventid);
+        final events = await eventRepository.getEvents();
+        emit(EventFetched(events));
+      } catch (e) {
+        emit(EventError("Event does not deleted"));
+      }
     });
   }
 }
