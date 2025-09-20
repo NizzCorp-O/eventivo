@@ -16,7 +16,7 @@ class ProgramRepositories {
         .collection('events')
         .doc(eventId)
         .collection('programs')
-        .orderBy('title') // optional
+        .orderBy('order') // optional
         .get(); // fetch once
 
     final programs = snapshot.docs
@@ -24,5 +24,39 @@ class ProgramRepositories {
         .toList();
 
     return programs;
+  }
+
+  Future<void> updateProgram(ProgramModel programmodel, String eventid) async {
+    final docref = FirebaseFirestore.instance
+        .collection("events")
+        .doc(eventid)
+        .collection("programs")
+        .doc(programmodel.id);
+    await docref.update(programmodel.toMap());
+  }
+
+  Future<void> deleteProgram(String programID, String eventid) async {
+    final docref = FirebaseFirestore.instance
+        .collection("events")
+        .doc(eventid)
+        .collection("programs")
+        .doc(programID);
+    await docref.delete();
+  }
+    Future<void> updateProgramsOrder(String eventId, List<ProgramModel> programs) async {
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (int i = 0; i < programs.length; i++) {
+      final updatedProgram = programs[i].copyWith(order: i);
+      final docRef = FirebaseFirestore.instance
+          .collection("events")
+          .doc(eventId)
+          .collection("programs")
+          .doc(updatedProgram.id);
+
+      batch.update(docRef, updatedProgram.toMap());
+    }
+
+    await batch.commit(); // commit all updates together
   }
 }
