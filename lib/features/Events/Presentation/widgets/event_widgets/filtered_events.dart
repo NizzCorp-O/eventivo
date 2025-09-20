@@ -24,15 +24,15 @@ class FilteredContainer extends StatelessWidget {
             children: [
               if (icons != null)
                 Padding(
-                  padding: const EdgeInsets.only(left: 16, bottom: 13, top: 12),
+                  padding: const EdgeInsets.only(left: 5, bottom: 5, top: 5),
                   child: Icon(
                     icons,
                     color: selectedindex == true
                         ? ColorConstant.MainWhite
-                        : Color(0xFF374151),
+                        : ColorConstant.GradientColor1,
                   ),
                 ),
-              SizedBox(width: 8),
+              SizedBox(width: 5),
               Padding(
                 padding: const EdgeInsets.only(bottom: 9, right: 10, top: 11),
                 child: Text(
