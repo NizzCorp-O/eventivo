@@ -1,19 +1,63 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
+import 'package:eventivo/features/Events/Data/models/Program_model.dart';
+import 'package:eventivo/features/Events/Data/models/event_models.dart';
+import 'package:eventivo/features/Events/Presentation/Bloc/programs/bloc/programs_bloc.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/payment_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/container_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
-class EventDetailScreen extends StatelessWidget {
-  const EventDetailScreen({super.key});
+class EventDetailScreen extends StatefulWidget {
+  final EventModel events;
+  final List<String> imageUrls;
+  final String coverphoto;
+
+  final String eventName;
+  final String date;
+  final String starttime;
+  final String endtime;
+  final String venue;
+  final String address;
+
+  const EventDetailScreen({
+    super.key,
+    required this.coverphoto,
+
+    required this.eventName,
+    required this.date,
+    required this.starttime,
+    required this.endtime,
+    required this.imageUrls,
+    required this.venue,
+    required this.address,
+    required this.events,
+  });
+
+  @override
+  State<EventDetailScreen> createState() => _EventDetailScreenState();
+}
+
+class _EventDetailScreenState extends State<EventDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<ProgramsBloc>(
+      context,
+    ).add(GetProgramsEvent(widget.events.id));
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<String> images = [
-      "assets/images/img (2).png",
-      "assets/images/div.png",
-      "assets/images/bighall.png",
-      "assets/images/bighall.png",
-    ];
+    TextEditingController titleController = TextEditingController();
+    TextEditingController descController = TextEditingController();
+    TextEditingController timeController = TextEditingController();
+
+    DateTime eventDate = DateFormat('dd MMM yyyy').parse(widget.date);
+
+    String formattedDate = DateFormat('MMMM dd yyyy').format(eventDate);
+
     return Scaffold(
       backgroundColor: ColorConstant.MainWhite,
       //////// APP BAR  SECTION //////////////
@@ -48,7 +92,7 @@ class EventDetailScreen extends StatelessWidget {
       //////////////////////// BODY SECTION ///////////////////
       //////////////////////// BODY SECTION ///////////////////
       body: Padding(
-        padding: const EdgeInsets.only(left: 24, right: 24),
+        padding: const EdgeInsets.only(left: 16, right: 16),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,9 +101,10 @@ class EventDetailScreen extends StatelessWidget {
                 height: 256,
                 width: double.infinity,
                 decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: AssetImage("assets/images/bighall.png"),
+                    image: NetworkImage(widget.coverphoto),
                   ),
 
                   borderRadius: BorderRadius.circular(16),
@@ -70,19 +115,21 @@ class EventDetailScreen extends StatelessWidget {
                 softWrap: true,
                 overflow: TextOverflow.visible,
 
-                "Tech Conference 2024",
+                widget.eventName,
                 style: TextStyle(
                   fontFamily: CustomFontss.fontFamily,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   fontSize: 24,
                 ),
               ),
               SizedBox(height: 12),
+
               ///// DATE AND PLACE SECTION ///////
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -100,11 +147,13 @@ class EventDetailScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            ////// DATE //////
                             Text(
+                              formattedDate.toString(),
                               maxLines: 1,
                               softWrap: true,
                               overflow: TextOverflow.visible,
-                              "December 15, 2025",
+
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
 
@@ -112,13 +161,30 @@ class EventDetailScreen extends StatelessWidget {
                                 color: Color(0xFF111827),
                               ),
                             ),
-                            Text(
-                              "9:00 AM - 6:00 PM",
-                              style: TextStyle(
-                                color: ColorConstant.Subtittle,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                              ),
+                            ///// TIME //////////////
+                            /// ///// TIME //////////////
+                            Row(
+                              children: [
+                                Text(
+                                  widget.starttime,
+                                  style: TextStyle(
+                                    color: ColorConstant.Subtittle,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Text("to"),
+                                SizedBox(width: 10),
+                                Text(
+                                  widget.endtime,
+                                  style: TextStyle(
+                                    color: ColorConstant.Subtittle,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -127,6 +193,7 @@ class EventDetailScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -147,7 +214,7 @@ class EventDetailScreen extends StatelessWidget {
                             Text(
                               // softWrap: true,
                               // overflow: TextOverflow.ellipsis,
-                              "Le Meridian Convention Center",
+                              widget.venue,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
 
@@ -156,7 +223,7 @@ class EventDetailScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "3001 Expo Blvd, Santa Clara, CA",
+                              widget.address,
                               style: TextStyle(
                                 color: ColorConstant.Subtittle,
                                 fontWeight: FontWeight.w400,
@@ -187,19 +254,44 @@ class EventDetailScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: List.generate(
-                    images.length,
+                    widget.imageUrls.length,
                     (index) => Padding(
                       padding: const EdgeInsets.all(6),
-                      child: Container(
-                        height: 96,
-                        width: 96,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage(images[index]),
-                          ),
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              content: Container(
+                                width: double.infinity,
 
-                          borderRadius: BorderRadius.circular(12),
+                                height: 400,
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(0),
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      widget.imageUrls[index],
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 96,
+                          width: 96,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(widget.imageUrls[index]),
+                            ),
+
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
@@ -216,71 +308,115 @@ class EventDetailScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16),
-              Column(
-                children: List.generate(
-                  3,
-                  (index) => Padding(
-                    padding: const EdgeInsets.all(6),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Color(0xffF9FAFB),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "Opening keynotes",
+
+              BlocBuilder<ProgramsBloc, ProgramsState>(
+                builder: (context, state) {
+                  if (state is Programloading) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (state is ProgramsLoaded) {
+                    return Column(
+                      children: List.generate(
+                        state.programs.length,
+                        (index) => Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Color(0xFFE5E7EB),
+                                width: 1,
+                              ), // subtle border
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        state.programs[index].title,
+                                        style: TextStyle(
+                                          fontFamily: CustomFontss.fontFamily,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      state.programs[index].time,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: ColorConstant.GradientColor1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  state.programs[index].description,
                                   style: TextStyle(
                                     fontFamily: CustomFontss.fontFamily,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: ColorConstant.Subtittle,
+                                    height: 1.4,
                                   ),
                                 ),
-                              ),
-
-                              Text(
-                                "9:00 AM",
-                                style: TextStyle(
-                                  color: ColorConstant.GradientColor1,
-                                  fontWeight: FontWeight.w500,
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "Duration : 60 mins",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "Future of Technology & Innovation",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: ColorConstant.Subtittle,
+                              ],
                             ),
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            "Main Auditorium • 60 minutes",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
+                    );
+                  }
+
+                  return Text("no program currently available");
+                },
               ),
               SizedBox(height: 17),
 
               ////////// JION BUTTON SECTION ///////////
               ///////////// JION BUTTON SECTION ///////////
-              ContainerButton(title: "Join Event", onPressed: () {}),
+              ContainerButton(
+                title: "Join Event",
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PaymentScreen()),
+                  );
+                },
+              ),
               SizedBox(height: 12),
               ////////////. chat section //////////
               InkWell(
