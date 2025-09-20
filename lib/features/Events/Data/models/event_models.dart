@@ -28,6 +28,7 @@ class EventModel {
   // Firestore-lekku data map aakkunna function
   Map<String, dynamic> toMap() {
     return {
+      "id": id,
       'name': name,
       'venue': venue,
       "address": Address,
@@ -55,6 +56,33 @@ class EventModel {
       offerPrice: map['offerPrice'] ?? '',
       availableSlot: map['availableSlot'] ?? '',
       imageUrls: List<String>.from(map['imageUrls'] ?? []),
+    );
+  }
+  EventModel copyWith({
+    String? id,
+    String? name,
+    String? venue,
+    String? Address,
+    String? date,
+    String? starttime,
+    String? endtime,
+    String? entryFee,
+    String? offerPrice,
+    String? availableSlot,
+    List<String>? imageUrls,
+  }) {
+    return EventModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      venue: venue ?? this.venue,
+      Address: Address ?? this.Address,
+      date: date ?? this.date,
+      starttime: starttime ?? this.starttime,
+      endtime: endtime ?? this.endtime,
+      entryFee: entryFee ?? this.entryFee,
+      offerPrice: offerPrice ?? this.offerPrice,
+      availableSlot: availableSlot ?? this.availableSlot,
+      imageUrls: imageUrls ?? this.imageUrls,
     );
   }
 }
