@@ -1,4 +1,5 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
+import 'package:eventivo/core/constants/sizedBox/App_spaces.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:flutter/material.dart';
 
@@ -23,14 +24,14 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 24, top: 10, right: 24),
+      padding: const EdgeInsets.only(left: 18, top: 5, bottom: 5, right: 18),
       child: InkWell(
         onTap: onTap,
         child: Container(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 10),
+              AppSpaces.height7,
 
               Row(
                 children: [
@@ -45,6 +46,7 @@ class EventCard extends StatelessWidget {
                       height: 80,
                       width: 80,
                       decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
                         image: DecorationImage(
                           fit: BoxFit.cover,
                           image: NetworkImage(URL),
@@ -67,7 +69,7 @@ class EventCard extends StatelessWidget {
                           Eventname,
                           style: TextStyle(
                             fontFamily: CustomFontss.fontFamily,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             fontSize: 18,
                           ),
                         ),
@@ -80,26 +82,21 @@ class EventCard extends StatelessWidget {
                               size: 20,
                             ),
                             SizedBox(width: 6),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [Text(date)],
-                            ),
+                            Text(date),
                             SizedBox(width: 10),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.watch_later_outlined,
-                                  color: ColorConstant.GradientColor1,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 2),
-
-                                Text(
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  time,
-                                ),
-                              ],
+                            Icon(
+                              Icons.watch_later_outlined,
+                              color: ColorConstant.GradientColor1,
+                              size: 20,
+                            ),
+                            SizedBox(width: 5),
+                            /////////  Time Section //////////////////
+                            Flexible(
+                              child: Text(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                time,
+                              ),
                             ),
                           ],
                         ),
@@ -112,10 +109,10 @@ class EventCard extends StatelessWidget {
                               size: 20,
                             ),
                             SizedBox(width: 5),
-                            Expanded(
+                            Flexible(
                               child: Text(
                                 // allow wrapping
-                                overflow: TextOverflow.visible,
+                                overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 venue,
                               ),
