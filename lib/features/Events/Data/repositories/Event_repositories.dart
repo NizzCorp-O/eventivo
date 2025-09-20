@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:eventivo/features/Events/Data/models/Program_model.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,8 +12,14 @@ class EventRepository {
   List<XFile> imageslist = [];
 
   // Create event in Firestore
-  Future<void> createEvent(EventModel event) async {
-    await FirebaseFirestore.instance.collection('events').add(event.toMap());
+  Future<EventModel> createEvent(EventModel event) async {
+    final docRef = FirebaseFirestore.instance.collection('events').doc();
+    final eventId = docRef.id;
+
+    final newEvent = event.copyWith(id: eventId);
+    await docRef.set(newEvent.toMap());
+
+    return newEvent;
   }
 
   // Pick multiple images
@@ -37,21 +45,6 @@ class EventRepository {
       imageslist.add(file);
       imageUrls.add(url);
     }
-
-    // for (var file in pickedFiles) {
-    //   final localFile = File(file.path);
-    //   final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    //   final ext = file.name.split('.').last;
-    //   final ref = FirebaseStorage.instance.ref().child(
-    //     'event_images/$fileName.$ext',
-    //   );
-
-    //   await ref.putFile(localFile);
-    //   final url = await ref.getDownloadURL();
-
-    //   imageslist.add(file);
-    //   imageUrls.add(url);
-    // }
   }
 
   Future<List<EventModel>> getEvents() async {
@@ -69,5 +62,10 @@ class EventRepository {
       imageslist.removeAt(index);
       imageUrls.removeAt(index);
     }
+  }
+
+  Future<void> deleteEvents(String eventid) async {
+    final docRef = FirebaseFirestore.instance.collection('events').doc(eventid);
+   await docRef.delete();
   }
 }
