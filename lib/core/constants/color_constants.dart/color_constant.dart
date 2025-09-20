@@ -12,4 +12,5 @@ class ColorConstant {
   static const Color Subtittle = Color(0xFF4B5563);
   static const Color textfieldBG = Color(0xFFF9FAFB);
   static const Color PrimaryBlue = Color(0xFF1A237E);
+  static const Color CancelClr = Color(0xFFFEF2F2);
 }
