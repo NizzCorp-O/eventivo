@@ -1,44 +1,35 @@
-import 'dart:async';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:eventivo/features/Events/Data/models/chat_models.dart';
 import 'package:eventivo/features/Events/Data/repositories/chat_repositories.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
+
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  final ChatRepository chatRepository;
-  StreamSubscription? _subscription;
+  final ChatService chatService;
 
-  ChatBloc(this.chatRepository) : super(ChatInitial()) {
-    on<LoadMessages>(_onLoadMessages);
-    on<SendMessageEvent>(onSendMessage);
-  }
-  void _onLoadMessages(LoadMessages event, Emitter<ChatState> emit) {
-    emit(ChatLoading());
-    _subscription?.cancel();
-    _subscription = chatRepository
-        .getMessages(event.eventId)
-        .listen(
-          (messages) => emit(ChatLoaded(messages)),
-          onError: (error) => emit(ChatError(error.toString())),
+  ChatBloc( this.chatService) : super(ChatInitial()) {
+    // Load messages (real-time stream from Firestore)
+    on<LoadMessages>((event, emit) async {
+      emit(ChatLoading());
+      try {
+        await emit.forEach<List<ChatModel>>(
+          chatService.getMessages(event.eventId), // returns Stream<List<ChatModel>>
+          onData: (messages) => ChatLoaded(messages),
+          onError: (error, stackTrace) => ChatError(error.toString()),
         );
-  }
+      } catch (e) {
+        emit(ChatError(e.toString()));
+      }
+    });
 
-  Future<void> onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
-    try {
-      await chatRepository.sendMessage(event.message, event.eventId);
-    } catch (e) {
-      emit(ChatError("Failed to send message: $e"));
-    }
-  }
-
-  // onSendMessage(SendMessage event, Emitter<ChatState> emit) async {
-  //   await chatRepository.sendMessage(event.message, event.eventId);
-  // }
-
-  @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
+    // Send message
+    on<SendMessageEvent>((event, emit) async {
+      try {
+        await chatService.sendMessage(event.message, event.eventId);
+      } catch (e) {
+        emit(ChatError("Failed to send message: $e"));
+      }
+    });
   }
 }

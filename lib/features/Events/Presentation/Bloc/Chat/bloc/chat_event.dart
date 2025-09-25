@@ -9,6 +9,6 @@ class LoadMessages extends ChatEvent {
 
 class SendMessageEvent extends ChatEvent {
   final String eventId;
-  final ChatModels message;
+  final ChatModel message;
   SendMessageEvent({required this.eventId, required this.message});
 }

@@ -7,7 +7,7 @@ class ChatInitial extends ChatState {}
 class ChatLoading extends ChatState {}
 
 class ChatLoaded extends ChatState {
-  final List<ChatModels> messages;
+  final List<ChatModel> messages;
   ChatLoaded(this.messages);
 }
 
