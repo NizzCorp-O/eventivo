@@ -39,4 +39,8 @@ class ReorderEvents extends ProgramsEvent {
     required this.newIndex,
   });
 }
+class PickedStartTime extends ProgramsEvent {
+  final TimeOfDay time;
+  PickedStartTime(this.time);
+}
 
