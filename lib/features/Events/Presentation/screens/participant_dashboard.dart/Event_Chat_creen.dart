@@ -1,34 +1,60 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Data/models/chat_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_event.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class EventChatScreen extends StatefulWidget {
-  const EventChatScreen({super.key});
+class MessageScreen extends StatefulWidget {
+  final String eventId;
+  final String eventTitle;
+  final String currentUser;
+  final String profileUrl;
+
+  const MessageScreen({
+    super.key,
+    required this.eventId,
+    required this.eventTitle,
+    required this.currentUser,
+    required this.profileUrl,
+  });
 
   @override
-  State<EventChatScreen> createState() => _EventChatScreenState();
+  State<MessageScreen> createState() => _MessageScreenState();
 }
 
-class _EventChatScreenState extends State<EventChatScreen> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<ChatBloc>().add(
-      LoadMessages('event123'),
-    ); // Replace with actual event ID
-  }
-
+class _MessageScreenState extends State<MessageScreen> {
   TextEditingController messageController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    context.read<ChatBloc>().add(LoadMessages(widget.eventId));
+  }
+
+  String _formatTime(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate();
+
+    int hour = dateTime.hour;
+    int minute = dateTime.minute;
+
+    String amPm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    if (hour == 0) hour = 12; // 12 AM or PM instead of 0
+
+    String minuteStr = minute.toString().padLeft(2, '0');
+
+    return "$hour:$minuteStr $amPm";
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String userName = 'shafeeque'; // Example long name
-    int maxLenght = 15;
+    int maxLength = 15;
+
     return Scaffold(
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -77,51 +103,51 @@ class _EventChatScreenState extends State<EventChatScreen> {
                   ),
                 ),
                 SizedBox(width: 10),
-                BlocBuilder<ChatBloc, ChatState>(
-                  builder: (context, state) {
-                    return InkWell(
-                      onTap: () {
-                        if (messageController.text.isNotEmpty) {
-                          context.read<ChatBloc>().add(
-                            SendMessageEvent(
-                              eventId: "hjAnPzBhUAoG8POenhCi",
-                              message: ChatModels(
-                                text: messageController.text,
+                InkWell(
+                  onTap: () {
+                    if (messageController.text.isNotEmpty) {
+                      context.read<ChatBloc>().add(
+                        SendMessageEvent(
+                          eventId: widget.eventId,
+                          message: ChatModel(
+                            senderImageUrl: widget.profileUrl,
+                            senderId: widget.currentUser,
+                            message: messageController.text,
+                            senderName:
+                                FirebaseAuth
+                                    .instance
+                                    .currentUser
+                                    ?.displayName ??
+                                "anonymous",
 
-                                senderName: "Shafeeque",
-                                time: DateTime.now().toString(),
-                              ),
-                            ),
-                          );
-                          messageController.clear();
-                        }
-                      },
-                      child: CircleAvatar(
-                        radius: 22,
-                        backgroundColor: ColorConstant.GradientColor1,
-                        child: Icon(Icons.send, color: Colors.white),
-                      ),
-                    );
+                            timestamp: Timestamp.now(),
+                          ),
+                        ),
+                      );
+                      messageController.clear();
+                    }
                   },
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: ColorConstant.GradientColor1,
+                    child: Icon(Icons.send, color: Colors.white),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-
       backgroundColor: ColorConstant.MainWhite,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: ColorConstant.MainWhite,
         centerTitle: true,
         title: Text(
-          "Tech Conference 2024",
+          widget.eventTitle,
           style: TextStyle(
             fontFamily: CustomFontss.fontFamily,
             fontWeight: FontWeight.w600,
@@ -129,78 +155,74 @@ class _EventChatScreenState extends State<EventChatScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              ListView.builder(
-                itemBuilder: (context, index) {
-                  if (index == 3) {
-                    return SendMessages();
-                  }
-                  return RecievedMessages(
-                    userName: userName,
-                    maxLenght: maxLenght,
+      body: BlocBuilder<ChatBloc, ChatState>(
+        builder: (context, state) {
+          if (state is ChatLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state is ChatLoaded) {
+            return ListView.builder(
+              reverse: true, // newest messages at bottom
+              padding: const EdgeInsets.only(bottom: 80),
+              itemCount: state.messages.length,
+              itemBuilder: (context, index) {
+                final chat = state.messages[index];
+                final isMe = chat.senderId == widget.currentUser;
+
+                if (isMe) {
+                  return SendMessages(
+                    message: chat.message,
+                    time: _formatTime(chat.timestamp),
                   );
-                },
-                itemCount: 4,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-              ),
-            ],
-          ),
-        ),
+                } else {
+                  return RecievedMessages(
+                    userName: chat.senderName,
+                    maxLenght: maxLength,
+                    message: chat.message,
+                    time: _formatTime(chat.timestamp),
+                  );
+                }
+              },
+            );
+          } else if (state is ChatError) {
+            return Center(child: Text(state.error));
+          }
+          return Container();
+        },
       ),
     );
   }
 }
 
-/////////////////////////////////////////////chat UI SECTION Widgets/////////////////////////////////////////////
+///////////////////////////////////////////// Chat UI Widgets /////////////////////////////////////////////
 class SendMessages extends StatelessWidget {
-  const SendMessages({super.key});
+  final String message;
+  final String time;
+  const SendMessages({super.key, required this.message, required this.time});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.end, // Align everything to the right
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Message Column (time + "You" + bubble)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Time + You
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      "10:35 AM",
-                      style: TextStyle(
-                        fontFamily: CustomFontss.fontFamily,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      time,
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     SizedBox(width: 6),
-                    Text(
-                      "You",
-                      style: TextStyle(
-                        fontFamily: CustomFontss.fontFamily,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Colors.black,
-                      ),
-                    ),
+                    Text("You", style: TextStyle(fontWeight: FontWeight.w600)),
                   ],
                 ),
                 SizedBox(height: 6),
-                // Chat Bubble
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
@@ -208,24 +230,15 @@ class SendMessages extends StatelessWidget {
                       bottomLeft: Radius.circular(16),
                       bottomRight: Radius.circular(16),
                     ),
-                    color: ColorConstant.GradientColor1, // Yellow bubble
+                    color: ColorConstant.GradientColor1,
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  // optional, to avoid super wide bubbles
-                  child: Text(
-                    'hi, actually where is exact location is function?',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: ColorConstant.MainWhite,
-                      fontSize: 16,
-                    ),
-                  ),
+                  child: Text(message, style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
           ),
           SizedBox(width: 8),
-          // Profile Picture always at end
           CircleAvatar(
             radius: 20,
             backgroundImage: AssetImage("assets/images/user.png"),
@@ -237,26 +250,31 @@ class SendMessages extends StatelessWidget {
 }
 
 class RecievedMessages extends StatelessWidget {
+  final String userName;
+  final int maxLenght;
+  final String message;
+  final String time;
+
   const RecievedMessages({
     super.key,
     required this.userName,
     required this.maxLenght,
+    required this.message,
+    required this.time,
   });
-
-  final String userName;
-  final int maxLenght;
 
   @override
   Widget build(BuildContext context) {
+    String? profileUrl = FirebaseAuth.instance.currentUser?.photoURL;
+    print("profile url : $profileUrl");
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage("assets/images/IMG_0684.JPG"),
-          ),
-          SizedBox(width: 10),
+          CircleAvatar(radius: 20, backgroundColor: Colors.grey),
+          SizedBox(width: 5),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,25 +284,13 @@ class RecievedMessages extends StatelessWidget {
                     Text(
                       userName.length <= maxLenght
                           ? userName
-                          : userName.substring(0, maxLenght) + '...',
-                      maxLines: 1,
-
-                      overflow: TextOverflow.ellipsis,
-
-                      style: TextStyle(
-                        fontFamily: CustomFontss.fontFamily,
-                        fontWeight: FontWeight.w600,
-                      ),
+                          : "${userName.substring(0, maxLenght)}...",
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     SizedBox(width: 5),
                     Text(
-                      ' 2:30 PM',
-                      style: TextStyle(
-                        fontFamily: CustomFontss.fontFamily,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      time,
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   ],
                 ),
@@ -293,20 +299,13 @@ class RecievedMessages extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(10),
                     ),
                     color: Colors.blueAccent,
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Text(
-                    'Heloo..Guys Good morning all of you, Welcome to the Tech Conference 2024!',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: ColorConstant.MainWhite,
-                      fontSize: 16,
-                    ),
-                  ),
+                  child: Text(message, style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

@@ -1,151 +1,96 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Event_Chat_creen.dart';
+import 'package:eventivo/features/Events/Data/models/event_models.dart';
+import 'package:eventivo/features/Events/Presentation/Bloc/Chat/presentation/widgets/chat_evetnts.dart';
+import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/event_Chat_creen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorConstant.MainWhite,
-      appBar: AppBar(
-        backgroundColor: ColorConstant.MainWhite,
-        centerTitle: true,
-        title: Text(
-          "Event chat",
-          style: TextStyle(
-            fontFamily: CustomFontss.fontFamily,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 40, right: 40),
-          child: Column(
-            children: [...List.generate(5, (index) => chat_Events(),
-          )
-          ],
-          ),
-        ),
-      ),
-    );
-  }
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class chat_Events extends StatelessWidget {
-  const chat_Events({super.key});
-
+class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 20),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EventChatScreen()),
-              );
-            },
-            child: Container(
-              child: Row(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        height: 56,
-                        width: 56,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage("assets/images/div.png"),
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 10,
-
-                          backgroundColor: ColorConstant.GradientColor2,
-                          child: Text(
-                            "3",
-                            style: TextStyle(
-                              fontFamily: CustomFontss.fontFamily,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                              color: ColorConstant.MainWhite,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                maxLines: 1,
-
-                                overflow: TextOverflow.ellipsis,
-                                "Tech conference  dasdfdasfjasj",
-                                style: TextStyle(
-                                  fontFamily: CustomFontss.fontFamily,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: ColorConstant.MainBlack,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text("2m ago"),
-                          ],
-                        ),
-
-                        Text(
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          "Event Coordinator: Welcome everyone! The conference is starting...",
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 4,
-                              backgroundColor: Colors.green,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "24 Participants",
-                              style: TextStyle(
-                                fontFamily: CustomFontss.fontFamily,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                                color: Colors.green,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: ColorConstant.MainWhite,
+        appBar: AppBar(
+          backgroundColor: ColorConstant.MainWhite,
+          centerTitle: true,
+          title: Center(
+            child: Text(
+              "Event chat",
+              style: TextStyle(
+                fontFamily: CustomFontss.fontFamily,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
               ),
             ),
           ),
-          SizedBox(width: 10),
-        ],
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 15, right: 15),
+            child: BlocConsumer<EventBloc, EventState>(
+              listener: (context, state) {},
+              builder: (context, state) {
+                if (state is EventFetched) {
+                  return Column(
+                    children: [
+                      ...List.generate(
+                        state.Events.length,
+                        (index) => chat_Events(
+                          eventId: state.Events[index].id,
+                          URL: state.Events[index].imageUrls[0],
+                          time: state.Events[index].starttime,
+                          title: state.Events[index].name,
+                          participants: "30",
+                          recentmessage: "shaeequemohd",
+                          recentmessagecount: "5",
+                          onTap: () {
+                            final currentUser =
+                                FirebaseAuth.instance.currentUser?.uid;
+                            if (currentUser != null &&
+                                state.Events[index].name != null &&
+                                state.Events[index].id != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MessageScreen(
+                                    profileUrl: "",
+                                    eventTitle: state.Events[index].name,
+                                    currentUser: currentUser,
+                                    eventId: state.Events[index].id,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Missing event data or user not logged in",
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return Center(child: Text("no events currently available"));
+              },
+            ),
+          ),
+        ),
       ),
     );
   }
