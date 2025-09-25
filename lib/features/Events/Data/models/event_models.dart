@@ -69,7 +69,7 @@ class EventModel {
     String? entryFee,
     String? offerPrice,
     String? availableSlot,
-    List<String>? imageUrls,
+    List<String>? imageUrls, required String createdBy, required DateTime createdAt,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -85,4 +85,9 @@ class EventModel {
       imageUrls: imageUrls ?? this.imageUrls,
     );
   }
+}
+// Extension outside the class
+extension EventDateTime on EventModel {
+  DateTime get startDateTime => DateTime.parse("$date $starttime:00");
+  DateTime get endDateTime => DateTime.parse("$date $endtime:00");
 }

@@ -1,25 +1,33 @@
-class ChatModels {
-  final String text;
-  final String senderName;
-  final String time;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  ChatModels({
-    required this.text,
+class ChatModel {
+  String senderId;
+  String senderName; // display name of sender
+  String message;
+  Timestamp timestamp;
+  String senderImageUrl;
 
+  ChatModel({
+    required this.senderId,
     required this.senderName,
-    required this.time,
+    required this.message,
+    required this.timestamp,
+    required this.senderImageUrl,
   });
 
-  factory ChatModels.fromJson(Map<String, dynamic> json) {
-    return ChatModels(
-      text: json['text'],
+  Map<String, dynamic> toJson() => {
+        'senderId': senderId,
+        'senderName': senderName,
+        'message': message,
+        'timestamp': timestamp,
+        'senderImageUrl': senderImageUrl,
+      };
 
-      senderName: json['senderName'],
-      time: json['time'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'text': text, 'senderName': senderName, 'time': time};
-  }
+  factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
+        senderId: json['senderId'],
+        senderName: json['senderName'],
+        message: json['message'],
+        timestamp: json['timestamp'],
+        senderImageUrl: json['senderImageUrl'],
+      );
 }
