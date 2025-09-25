@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:eventivo/features/Events/Data/models/Program_model.dart';
 import 'package:eventivo/features/Events/Data/repositories/program_repositories.dart';
+import 'package:flutter/material.dart';
 
 part 'programs_event.dart';
 part 'programs_state.dart';
@@ -48,23 +49,22 @@ class ProgramsBloc extends Bloc<ProgramsEvent, ProgramsState> {
         emit(ProgramError(message: "does not delete this program"));
       }
     });
-on<ReorderEvents>((event, emit) async {
-  if (state is ProgramsLoaded) {
-    final currentState = state as ProgramsLoaded;
-    final updatedList = List<ProgramModel>.from(currentState.programs);
+    on<ReorderEvents>((event, emit) async {
+      if (state is ProgramsLoaded) {
+        final currentState = state as ProgramsLoaded;
+        final updatedList = List<ProgramModel>.from(currentState.programs);
 
-    int newIndex = event.newIndex;
-    if (newIndex > event.oldIndex) newIndex -= 1;
+        int newIndex = event.newIndex;
+        if (newIndex > event.oldIndex) newIndex -= 1;
 
-    final item = updatedList.removeAt(event.oldIndex);
-    updatedList.insert(newIndex, item);
+        final item = updatedList.removeAt(event.oldIndex);
+        updatedList.insert(newIndex, item);
 
-    // 🔥 Update Firestore order
-    await programrepo.updateProgramsOrder(event.ID, updatedList);
+        //  Update Firestore order
+        await programrepo.updateProgramsOrder(event.ID, updatedList);
 
-    emit(ProgramsLoaded(updatedList));
-  }
-});
-
+        emit(ProgramsLoaded(updatedList));
+      }
+    });
   }
 }
