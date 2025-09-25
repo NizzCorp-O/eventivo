@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Data/repositories/Event_repositories.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -29,7 +30,10 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             offerPrice: event.eventModel.offerPrice,
             availableSlot: event.eventModel.availableSlot,
             imageUrls: eventRepository.imageUrls,
-          ),
+          
+            
+          )
+        
         );
 
         emit(EventAdded(eventModel: newevent));
@@ -49,7 +53,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       }
     });
     on<PickImageEvent>((event, emit) async {
-      emit(EventLoading());
+      emit(ImageLoading());
       try {
         await eventRepository.pickMedia();
         emit(

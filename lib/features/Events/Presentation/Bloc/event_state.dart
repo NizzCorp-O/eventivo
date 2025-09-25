@@ -8,17 +8,37 @@ class EventLoaded extends EventState {
   final List<XFile> images;
   final List<String> imageUrls;
 
-  EventLoaded( {required this.images, required this.imageUrls});
-}
+  EventLoaded({required this.images, required this.imageUrls});
+} class EventSuccess extends EventState{
+  
+   final String eventId;
+   EventSuccess({required this.eventId});
 
+}
 class EventFetched extends EventState {
   List<EventModel> Events;
   EventFetched(this.Events);
 }
 
 class EventLoading extends EventState {}
+class ImageLoading extends EventState{}
 
-class EventAdded extends EventState {}
+// class ProgramAdded extends EventState {}
+// class Programloading extends EventState {}
+
+// class ProgramsLoaded extends EventState {
+//   final List<ProgramModel> programs;
+
+//   ProgramsLoaded(this.programs);
+// }
+// class ProgramError extends EventState{}
+
+
+
+class EventAdded extends EventState {
+   final EventModel eventModel;
+  EventAdded({required this.eventModel});
+}
 
 class EventError extends EventState {
   final String message;
@@ -71,4 +91,3 @@ class EventFormState extends EventState {
     );
   }
 }
-

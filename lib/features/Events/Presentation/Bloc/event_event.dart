@@ -25,6 +25,7 @@ class getEvents extends EventEvent {}
 
 class PickImageEvent extends EventEvent {}
 
+
 class AddImageEvent extends EventEvent {
   final XFile image;
   AddImageEvent(this.image);
@@ -67,3 +68,4 @@ final String eventid;
   DeleteEvents({required this.eventid});
 
 }
+
