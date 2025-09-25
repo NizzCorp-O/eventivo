@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 class Program_section extends StatelessWidget {
   final String programtitle;
   final String programdesc;
+  final String starttime;
+   final String endtime;
   final void Function()? onEdit;
   final void Function()? onDelete;
   const Program_section({
@@ -12,7 +14,7 @@ class Program_section extends StatelessWidget {
     required this.programtitle,
     required this.programdesc,
     this.onEdit,
-    this.onDelete,
+    this.onDelete, required this.starttime, required this.endtime,
   });
 
   @override
@@ -59,11 +61,14 @@ class Program_section extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Text("10:00AM"),
+                        Text(starttime),
                         SizedBox(width: 5),
-                        Text("to"),
-                        SizedBox(width: 5),
-                        Text("11:00AM"),
+                        Text("TO"),
+                        SizedBox(width:5 ,),
+                        Text(endtime)
+                        
+                        
+                     
                       ],
                     ),
                   ],
