@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 32),
                 Text(
-                  "Upcoming Events",
+                  "Joined Events",
                   style: TextStyle(
                     fontSize: 18,
                     fontFamily: CustomFontss.fontFamily,
@@ -227,7 +227,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }),
                       );
                     }
-                    return Text("Please join events");
+                    return Center(
+                      child: Text(
+                        "You have not joined any events yet!.",
+                        style: TextStyle(
+                          color: ColorConstant.InputText,
+                          fontSize: 15,
+                        ),
+                      ),
+                    );
                   },
                 ),
 

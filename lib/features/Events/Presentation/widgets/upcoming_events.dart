@@ -6,9 +6,16 @@ class UpcomingEvent extends StatelessWidget {
   final String eventId;
   final String title;
   final String imageUlr;
-  final String date ;
+  final String date;
   final String starttime;
-  const UpcomingEvent({super.key, required this.title, required this.imageUlr, required this.date, required this.starttime, required this.eventId});
+  const UpcomingEvent({
+    super.key,
+    required this.title,
+    required this.imageUlr,
+    required this.date,
+    required this.starttime,
+    required this.eventId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +34,7 @@ class UpcomingEvent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: NetworkImage(imageUlr)
+                  image: NetworkImage(imageUlr),
                 ),
               ),
               height: 48,
@@ -39,7 +46,7 @@ class UpcomingEvent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                   title,
+                    title,
                     maxLines: 1,
                     // softWrap: true,
                     overflow: TextOverflow.ellipsis,
@@ -52,24 +59,23 @@ class UpcomingEvent extends StatelessWidget {
                   SizedBox(height: 4),
                   Row(
                     children: [
-                      Text(date),
-                      SizedBox(width: 10),
-                      CircleAvatar(
-                        radius: 3,
-                        backgroundColor: ColorConstant.MainBlack,
+                      Text(
+                        date,
+                        style: TextStyle(color: ColorConstant.PrimaryBlue),
                       ),
                       SizedBox(width: 10),
-                      Text(starttime),
+                      CircleAvatar(radius: 3, backgroundColor: Colors.green),
+                      SizedBox(width: 10),
+                      Text(
+                        starttime,
+                        style: TextStyle(color: ColorConstant.GradientColor2),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
             SizedBox(width: 8),
-            CircleAvatar(
-              radius: 4,
-              backgroundColor: ColorConstant.GradientColor2,
-            ),
           ],
         ),
       ),
