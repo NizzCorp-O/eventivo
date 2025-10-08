@@ -213,7 +213,7 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
               ),
               ////// EVENT CARD SECTION ////////
               ///////// EVENT CARD SECTION //////
-              ///////// EVENT CARD SECTION ////////
+              ///////// EVENT CARD SECTION ////////gi
               BlocBuilder<EventBloc, EventState>(
                 builder: (context, state) {
                   if (state is EventLoading) {
