@@ -1,15 +1,25 @@
+
+
+
+
 class ProgramModel {
   final String id;
   final String title;
   final String description;
-  final String time;
+  final String startTime; 
+  final String endTime;  // previously 'time'
+    // auto calculate
+  final String duration;    // user input duration
   final int order;
 
-  ProgramModel({
+  ProgramModel( {
     required this.id,
     required this.title,
     required this.description,
-    required this.time,
+    required this.startTime,
+   required this.endTime,
+  
+    required this.duration,
     required this.order,
   });
 
@@ -17,14 +27,22 @@ class ProgramModel {
     String? id,
     String? title,
     String? description,
-    String? time,
+    String? startTime,
+    String? endTime,
+    
+    String? duration,
     int? order,
   }) {
     return ProgramModel(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
-      time: time ?? this.time,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+    
+
+  
+      duration: duration ?? this.duration,
       order: order ?? this.order,
     );
   }
@@ -33,7 +51,9 @@ class ProgramModel {
     return {
       "title": title,
       "description": description,
-      "time": time,
+      "startTime": startTime,
+      "endTime":endTime,
+      "duration": duration,
       "order": order,
     };
   }
@@ -43,24 +63,14 @@ class ProgramModel {
       id: id,
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-      time: map['time'] ?? '',
+      startTime: map['startTime'] ?? "",
+      endTime: map['endTime'] ?? "",
+
+      
+      duration: map['duration'] ?? "",
       order: map['order'] ?? 0,
     );
   }
 }
 
 
-//   ProgramModel copyWith({
-//     String? id,
-//     String? title,
-//     String? description,
-//     String? time,
-//   }) {
-//     return ProgramModel(
-//       id: id ?? this.id,
-//       title: title ?? this.title,
-//       time: title ?? this.time,
-//       description: description ?? this.description,
-//     );
-//   }
-// }

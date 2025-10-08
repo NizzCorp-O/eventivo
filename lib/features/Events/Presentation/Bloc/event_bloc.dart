@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
-import 'package:eventivo/features/Events/Data/repositories/Event_repositories.dart';
-import 'package:flutter/gestures.dart';
+import 'package:eventivo/features/Events/Data/repositories/event_repositories.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -12,46 +12,61 @@ part 'event_state.dart';
 
 class EventBloc extends Bloc<EventEvent, EventState> {
   final EventRepository eventRepository;
+  List<EventModel> allEvents = [];
 
   EventBloc({required this.eventRepository}) : super(EventInitial()) {
     on<AddEventEvent>((event, emit) async {
       emit(EventLoading());
       try {
-        final newevent = await eventRepository.createEvent(
-          EventModel(
-            id: "",
-            name: event.eventModel.name,
-            venue: event.eventModel.venue,
-            Address: event.eventModel.Address,
-            date: event.eventModel.date,
-            starttime: event.eventModel.starttime,
-            endtime: event.eventModel.endtime,
-            entryFee: event.eventModel.entryFee,
-            offerPrice: event.eventModel.offerPrice,
-            availableSlot: event.eventModel.availableSlot,
-            imageUrls: eventRepository.imageUrls,
-          
-            
-          )
-        
-        );
+        await eventRepository.createEvent(event.eventModel);
 
-        emit(EventAdded(eventModel: newevent));
+        emit(EventAdded());
       } catch (e) {
         emit(EventError("Failed to add event"));
       }
+    });
+    on<SearchEventsEvent>((event, emit) {
+      final query = event.query.toLowerCase();
+
+      final filtered = allEvents.where((e) {
+        return e.name.toLowerCase().contains(query);
+      }).toList();
+
+      emit(EventFetched(filtered));
     });
 
     on<getEvents>((event, emit) async {
       emit(EventLoading());
       try {
-        final events = await eventRepository.getEvents();
-        emit(EventFetched(events));
-        print("EVENT $events ");
+        await emit.forEach<List<EventModel>>(
+          eventRepository.getEvents(), // 👈 Stream
+          onData: (events) {
+            allEvents = events;
+            return EventFetched(events);
+          },
+          onError: (_, __) => EventError("Failed to fetch events"),
+        );
       } catch (e) {
-        emit(EventError("Failed to fetch events"));
+        emit(EventError("Something went wrong"));
       }
     });
+    on<Myevents>((event, emit) async {
+      emit(MyEventLoading());
+
+      try {
+        await emit.forEach<List<EventModel>>(
+          eventRepository.getMyEvents(),
+          onData: (myevent) {
+            print("Repository fetched: ${myevent.length} events");
+            return MyEventFetched(myevent);
+          },
+          onError: (_, __) => EventError("Failed to fetch events"),
+        );
+      } catch (e) {
+        emit(EventError("Something went wrong"));
+      }
+    });
+
     on<PickImageEvent>((event, emit) async {
       emit(ImageLoading());
       try {
@@ -151,14 +166,10 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     });
 
     on<DeleteEvents>((event, emit) async {
-      emit(EventLoading());
-
       try {
         await eventRepository.deleteEvents(event.eventid);
-        final events = await eventRepository.getEvents();
-        emit(EventFetched(events));
       } catch (e) {
-        emit(EventError("Event does not deleted"));
+        emit(EventError("Failed to delete event"));
       }
     });
   }

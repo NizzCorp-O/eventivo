@@ -1,6 +1,6 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/admin_home_screen.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/participant_home_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
+import 'package:eventivo/features/auth/data/models/login_model.dart';
 
 import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
 import 'package:eventivo/features/auth/presentation/pages/login_screen.dart';
@@ -28,27 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: ColorConstant.MainWhite,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 9.0),
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              border: BoxBorder.all(color: ColorConstant.InputBorder),
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, color: ColorConstant.MainBlack),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
-        ),
-      ),
+      appBar: AppBar(backgroundColor: ColorConstant.MainWhite),
       backgroundColor: ColorConstant.MainWhite,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -56,22 +36,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: _formKey,
           child: BlocConsumer<AuthBlocBloc, AuthBlocState>(
             listener: (context, state) {
-              if (state is AuthSuccess) {
-                if (state.role == 'admin') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AdminHomeScreen(), // Admin home
-                    ),
-                  );
-                } else
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ParticipantHomeScreen(),
-                    ),
-                  );
-              } else if (state is AuthError) {
+              if (state is RegistrationSuccess) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyHomePage(), // Admin home
+                  ),
+                );
+              }
+              if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Login failed. Please try again.')),
                 );
@@ -81,9 +54,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               if (state is AuthLoading) {
                 return Center(
                   child: CircularProgressIndicator(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    backgroundColor: ColorConstant.CircularProgressIndicatorBG,
-                    color: ColorConstant.CircularProgressIndicator,
+                    backgroundColor: ColorConstant.GradientColor1,
+                    color: ColorConstant.MainBlack,
                   ),
                 );
               }
@@ -250,6 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             SizedBox(height: 7),
                             TextFormField(
+                              keyboardType: TextInputType.number,
                               validator: (value) =>
                                   InputValidator.validatePhone(value),
                               controller: phoneController,
@@ -431,12 +404,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     if (isChecked == true) {
                                       context.read<AuthBlocBloc>().add(
                                         SignUpEvent(
-                                          name: nameController.text,
-                                          email: emailController.text,
-                                          phone: phoneController.text,
-                                          password: passwordController.text,
-                                          confirmPassword:
-                                              confirmPasswordController.text,
+                                          login: LoginModel(
+                                            pass: passwordController.text,
+                                            name: nameController.text,
+                                            email: emailController.text,
+                                            phone:
+                                                num.tryParse(
+                                                  phoneController.text.trim(),
+                                                ) ??
+                                                0,
+                                            "",
+                                          ),
                                         ),
                                       );
                                     }

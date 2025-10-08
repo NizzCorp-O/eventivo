@@ -4,15 +4,17 @@ import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart
 import 'package:eventivo/core/constants/sizedBox/App_spaces.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
-import 'package:eventivo/features/Events/Data/repositories/Event_repositories.dart';
+import 'package:eventivo/features/Events/Data/repositories/event_repositories.dart';
 
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Bottom_navigation_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
+import 'package:eventivo/features/Events/Presentation/widgets/event_create_media_section.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:intl/intl.dart';
 
 class EventCreationScreen extends StatelessWidget {
@@ -104,7 +106,8 @@ class EventCreationScreen extends StatelessWidget {
                     ),
                     AppSpaces.height7,
 
-                    // Venue
+                    ////////////////////// EVENT VENUE ///////////////////////////
+                    ///////////////////////// EVENT VENUE ////////////////////////
                     TextFormField(
                       controller: venueController,
                       validator: (value) => InputValidator.validateVenue(value),
@@ -139,7 +142,8 @@ class EventCreationScreen extends StatelessWidget {
                     ),
                     AppSpaces.height7,
 
-                    // Venue
+                    /////////////////////// VENUE TEXT FORM FIELD //////////////////
+                    ///////////////////////// VENUE TEXT FORM FIELD //////////////////
                     TextFormField(
                       validator: (value) =>
                           InputValidator.validateAddress(value),
@@ -163,7 +167,7 @@ class EventCreationScreen extends StatelessWidget {
                     ),
                     AppSpaces.height21,
 
-                    // Date & Time Row
+                    ////////////////////////////////////// DATE AND START TIME //////////////////////////////////////////
                     BlocBuilder<EventBloc, EventState>(
                       builder: (context, state) {
                         if (state is EventFormState) {
@@ -191,6 +195,8 @@ class EventCreationScreen extends StatelessWidget {
                                         ),
                                       ),
                                       AppSpaces.height7,
+                                      ///////////////////////////////// DATE FORM FIELD //////////////
+                                      /////////////////////////////////////////////////////////////////
                                       TextFormField(
                                         validator: (value) =>
                                             InputValidator.validateDate(value),
@@ -265,6 +271,8 @@ class EventCreationScreen extends StatelessWidget {
                                     ),
                                   ),
                                   AppSpaces.height7,
+                                  ///////////////////// START TIME  TEXT FIELD /////////////////////////////
+                                  /// ///////////////////// START TIME /////////////////////////////
                                   TextFormField(
                                     validator: (value) =>
                                         InputValidator.validateStarttime(value),
@@ -330,6 +338,7 @@ class EventCreationScreen extends StatelessWidget {
                                 ),
                               ),
                               AppSpaces.height7,
+                              /////////////////////////// END TIME FIELD ///////////
                               TextFormField(
                                 validator: (value) =>
                                     InputValidator.validateEndTIme(value),
@@ -387,6 +396,7 @@ class EventCreationScreen extends StatelessWidget {
                                 ),
                               ),
                               AppSpaces.height7,
+                              //////////////////// AVAILABEL SLOTE ///////////////////////
                               TextField(
                                 controller: availableSloteController,
                                 keyboardType: TextInputType.numberWithOptions(),
@@ -417,7 +427,7 @@ class EventCreationScreen extends StatelessWidget {
                     ),
                     AppSpaces.height21,
 
-                    // Entry Fee & Offer Price
+                    //////////////////////////// Entry Fee & Offer Price /////////////////////////
                     Row(
                       children: [
                         Expanded(
@@ -498,211 +508,136 @@ class EventCreationScreen extends StatelessWidget {
                     ),
                     AppSpaces.height21,
 
-                    // Cancellation Time
-                    // Row(
-                    //   children: [
-                    //     Container(
-                    //       decoration: BoxDecoration(
-                    //         border: Border.all(color: ColorConstant.InputBorder),
-                    //         borderRadius: BorderRadius.circular(10),
-                    //       ),
-                    //       child: IconButton(
-                    //         onPressed: () {},
-                    //         icon: const Icon(Icons.remove),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 8),
-                    //     Container(
-                    //       width: 100,
-                    //       decoration: BoxDecoration(
-                    //         color: ColorConstant.textfieldBG,
-                    //         borderRadius: BorderRadius.circular(10),
-                    //       ),
-                    //       height: 40,
-                    //       child: const Center(
-                    //         child: Text("0", style: TextStyle(fontSize: 18)),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 8),
-                    //     Container(
-                    //       decoration: BoxDecoration(
-                    //         border: Border.all(color: Colors.grey.shade400),
-                    //         borderRadius: BorderRadius.circular(10),
-                    //       ),
-                    //       child: IconButton(
-                    //         onPressed: () {},
-                    //         icon: const Icon(Icons.add),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 8),
-                    //     const Text("Hrs"),
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 20),
-
                     // ---------------- Media Gallery Section ----------------
-                    BlocBuilder<EventBloc, EventState>(
-                      builder: (context, state) {
-                        if (state is EventLoading)
-                          return Center(
-                            child: CircularProgressIndicator(
-                              backgroundColor: ColorConstant.MainWhite,
-                              color: ColorConstant.GradientColor2,
-                            ),
-                          );
-                        if (state is EventError) return Text(state.message);
-
-                        return Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Choose Media",
-                                style: TextStyle(
-                                  fontFamily: CustomFontss.fontFamily,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () async {
-                                  context.read<EventBloc>().add(
-                                    PickImageEvent(),
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: ColorConstant.GradientColor1,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 6,
-                                        offset: Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 14,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons
-                                            .photo_library_outlined, // image/gallery icon
-                                        color: Colors.white,
-                                        size: 22,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        "Open Gallery",
-                                        style: TextStyle(
-                                          fontFamily: CustomFontss.fontFamily,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorConstant.MainWhite,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                    // ---------------- Media Gallery Section ----------------
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Choose Media",
+                          style: TextStyle(
+                            fontFamily: CustomFontss.fontFamily,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      },
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            context.read<EventBloc>().add(PickImageEvent());
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: ColorConstant.GradientColor1,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons
+                                      .photo_library_outlined, // image/gallery icon
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Open Gallery",
+                                  style: TextStyle(
+                                    fontFamily: CustomFontss.fontFamily,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: ColorConstant.MainWhite,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     AppSpaces.height16,
+                    BlocBuilder<EventBloc, EventState>(
+                      builder: (context, state) {
+                        if (state is ImageLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: ColorConstant.GradientColor2,
+                              backgroundColor: ColorConstant.MainBlack,
+                            ),
+                          );
+                        }
 
-                    BlocListener<EventBloc, EventState>(
-                      listener: (context, state) {},
-                      child: BlocBuilder<EventBloc, EventState>(
-                        builder: (context, state) {
-                          if (state is EventError) {
-                            return Text("no image selected");
-                          }
-                          // if (state is EventLoading) {
-                          //   Center(child: CircularProgressIndicator());
-                          // }
-                          if (state is EventLoaded && state.images.isNotEmpty) {
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: state.images.length > 5
-                                        ? 5
-                                        : state.images.length,
+                        if (state is EventLoaded && state.images.isNotEmpty) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: GridView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: state.images.length > 5
+                                      ? 5
+                                      : state.images.length,
 
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3,
-                                          mainAxisSpacing: 10,
-                                          mainAxisExtent: 100,
-                                        ),
-                                    itemBuilder: (context, index) {
-                                      return MediaSection(
-                                        onView: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              content: Container(
-                                                width: 300,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        mainAxisSpacing: 10,
+                                        mainAxisExtent: 100,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    return MediaSection(
+                                      onView: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            content: Container(
+                                              width: 300,
 
-                                                height: 400,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black,
-                                                  borderRadius:
-                                                      BorderRadius.circular(0),
-                                                  image: DecorationImage(
-                                                    image: FileImage(
-                                                      File(
-                                                        state
-                                                            .images[index]
-                                                            .path,
-                                                      ),
+                                              height: 400,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(0),
+                                                image: DecorationImage(
+                                                  image: FileImage(
+                                                    File(
+                                                      state.images[index].path,
                                                     ),
-                                                    fit: BoxFit.cover,
                                                   ),
+                                                  fit: BoxFit.cover,
                                                 ),
                                               ),
                                             ),
-                                          );
-                                        },
-                                        onTap: () {
-                                          context.read<EventBloc>().add(
-                                            RemoveImageEvent(index: index),
-                                          );
-                                        },
-                                        mediaUrl: state.images[index],
-                                      );
-                                    },
-                                  ),
+                                          ),
+                                        );
+                                      },
+                                      onTap: () {
+                                        context.read<EventBloc>().add(
+                                          RemoveImageEvent(index: index),
+                                        );
+                                      },
+                                      mediaUrl: state.images[index],
+                                    );
+                                  },
                                 ),
-                                const SizedBox(width: 10),
-                              ],
-                            );
-                          }
-                          return Center(child: Text(""));
-                          // return Container(
-                          //   child: Icon(
-                          //     Icons.image_rounded,
-                          //     size: 40,
-                          //     color: ColorConstant.GradientColor1,
-                          //   ),
-                          //   width: 100,
-                          //   height: 100,
-                          //   margin: const EdgeInsets.only(right: 12),
-                          //   decoration: BoxDecoration(
-                          //     color: Colors.transparent,
-                          //     borderRadius: BorderRadius.circular(18),
-                          //   ),
-                          // );
-                        },
-                      ),
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          );
+                        }
+                        return Center(child: Text(""));
+                      },
                     ),
 
                     AppSpaces.height16,
@@ -732,62 +667,63 @@ class EventCreationScreen extends StatelessWidget {
 
                         Expanded(
                           child: Container(
-                            child: BlocBuilder<EventBloc, EventState>(
-                              builder: (context, state) {
-                                return ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        ColorConstant.GradientColor1,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ColorConstant.GradientColor1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
 
-                                  onPressed: () {
-                                    if (_formkey.currentState!.validate()) {
-                                      context.read<EventBloc>().add(
-                                        AddEventEvent(
-                                          eventModel: EventModel(
-                                            availableSlot:
-                                                availableSloteController.text,
-                                            entryFee: entryFeeController.text,
-                                            offerPrice:
-                                                offerPriceController.text,
-                                            imageUrls: eventrepo.imageUrls,
-                                            venue: venueController.text,
-                                            Address: addressController.text,
-                                            id: "",
-                                            name: nameController.text,
-                                            date: dateController.text,
-                                            starttime: starttimeController.text,
-                                            endtime: endtimeController.text,
-                                          ),
-                                        ),
-                                      );
+                              onPressed: () {
+                                if (_formkey.currentState!.validate()) {
+                                  context.read<EventBloc>().add(
+                                    AddEventEvent(
+                                      eventModel: EventModel(
+                                        createdAt: DateTime.now(),
+                                        createdBy: FirebaseAuth
+                                            .instance
+                                            .currentUser!
+                                            .uid,
+                                        availableSlot:
+                                            availableSloteController.text,
+                                        entryFee: entryFeeController.text,
+                                        offerPrice: offerPriceController.text,
+                                        imageUrls: [],
 
-                                      nameController.clear();
-                                      venueController.clear();
-                                      dateController.clear();
-                                      starttimeController.clear();
-                                      entryFeeController.clear();
-                                      offerPriceController.clear();
-                                      availableSloteController.clear();
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => MyHomePage(),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: Text(
-                                    "Create",
-                                    style: TextStyle(
-                                      color: ColorConstant.MainWhite,
+                                        venue: venueController.text,
+                                        address: addressController.text,
+                                        id: "",
+                                        name: nameController.text,
+                                        date: dateController.text,
+                                        startTime: starttimeController.text,
+                                        endTime: endtimeController.text,
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+
+                                  nameController.clear();
+                                  venueController.clear();
+                                  dateController.clear();
+                                  starttimeController.clear();
+                                  entryFeeController.clear();
+                                  offerPriceController.clear();
+                                  availableSloteController.clear();
+
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MyHomePage(),
+                                    ),
+                                  );
+                                }
                               },
+                              child: Text(
+                                "Create",
+                                style: TextStyle(
+                                  color: ColorConstant.MainWhite,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -800,58 +736,6 @@ class EventCreationScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class MediaSection extends StatelessWidget {
-  final XFile mediaUrl;
-  final void Function()? onTap;
-  final void Function()? onView;
-  const MediaSection({
-    super.key,
-    required this.mediaUrl,
-    this.onTap,
-    this.onView,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none, // ov
-      children: [
-        InkWell(
-          autofocus: false,
-          onTap: onView,
-          child: Container(
-            width: 100,
-            height: 100,
-            margin: const EdgeInsets.only(right: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              image: DecorationImage(
-                image: FileImage(File(mediaUrl.path)),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 16.5,
-          top: 0,
-          child: GestureDetector(
-            onTap: onTap,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.black54,
-                shape: BoxShape.circle,
-              ),
-              padding: const EdgeInsets.all(6),
-              child: const Icon(Icons.close, size: 16, color: Colors.white),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

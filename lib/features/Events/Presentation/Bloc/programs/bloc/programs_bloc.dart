@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:eventivo/features/Events/Data/models/Program_model.dart';
+import 'package:eventivo/features/Events/Data/models/program_model.dart';
 import 'package:eventivo/features/Events/Data/repositories/program_repositories.dart';
 import 'package:flutter/material.dart';
 

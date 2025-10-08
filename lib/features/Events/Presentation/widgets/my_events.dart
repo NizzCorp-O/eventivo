@@ -1,6 +1,8 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/scanned_tickets_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/particiipant_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,6 +30,8 @@ class My_Events extends StatelessWidget {
         builder: (context, state) {
           if (state is EventFetched) {}
           return InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             onTap: onTap,
             child: Container(
               decoration: BoxDecoration(
@@ -57,9 +61,8 @@ class My_Events extends StatelessWidget {
                         height: 48,
                         width: 48,
                       ),
-                      SizedBox(width: 16),
+                      SizedBox(width: 12),
                       Expanded(
-                        // Added Expanded here
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -86,7 +89,12 @@ class My_Events extends StatelessWidget {
                                         backgroundColor: Colors.green,
                                       ),
                                       SizedBox(width: 5),
-                                      Text(time),
+                                      Expanded(
+                                        child: Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          time,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -112,7 +120,12 @@ class My_Events extends StatelessWidget {
                         children: [
                           InkWell(
                             onTap: () {
-                              print("SCAN QR CODE");
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ScannedTickets(),
+                                ),
+                              );
                             },
                             child: Container(
                               child: Center(

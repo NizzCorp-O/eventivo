@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
+import 'package:eventivo/core/utils%20/qr_helper.dart';
+import 'package:eventivo/core/utils%20/storage_helper.dart';
+import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Data/repositories/tickets_repositories.dart';
 
 import 'package:eventivo/features/Events/Presentation/Bloc/counter/bloc/counter_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/Bloc/tickets/bloc/tickets_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/qr_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/ticket_screen.dart';
+import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +22,6 @@ class PaymentScreen extends StatefulWidget {
   final String date;
   final String starttime;
   final String venue;
-
   final String price;
 
   const PaymentScreen({
@@ -36,34 +40,66 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-   TicketsRepositories ticketrepo = TicketsRepositories();
-  late TicketsBloc ticketsBloc;
+  String? userEmail = FirebaseAuth.instance.currentUser?.email;
+  String? username = FirebaseAuth.instance.currentUser!.displayName;
+  TicketsRepositories ticketrepo = TicketsRepositories();
+
   late Razorpay _razorpay;
-  void _paymentsuccess(PaymentSuccessResponse response) {
+  Future<void> _paymentsuccess(PaymentSuccessResponse response) async {
     final attendeesCount = context.read<CounterBloc>().state.count;
     final paymentId = response.paymentId ?? "unknown_payment_id";
-  ticketrepo
-        .saveTicket(
-          widget.eventid,
-          FirebaseAuth.instance.currentUser!.uid,
-          paymentId,
-          attendeesCount,
-          widget.title,
-          "",
-        )
-        .then((value) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => QRScreen(
-                paymentId: paymentId,
-                eventTitle: widget.title,
-                attnedees: attendeesCount,
-                qurl: "",
-              ),
-            ),
-          );
-        });
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    // QR code data string
+    Map<String, dynamic> qrData = {
+      "eventId": widget.eventid,
+      "paymentId": paymentId,
+      "eventName": widget.title,
+      "attendees": attendeesCount,
+      "userName": username ?? user.email ?? "unknown_user",
+    };
+
+    final qrBytes = await generateQrCodeBytes(jsonEncode(qrData));
+
+    final qrUrl = await uploadQrToStorage(widget.eventid, user.uid, qrBytes);
+
+    await ticketrepo.saveTicket(
+      widget.eventid,
+      user.uid,
+      paymentId,
+      attendeesCount,
+      widget.title,
+      qrUrl,
+    );
+    final event = EventModel(
+      id: widget.eventid,
+      name: widget.title,
+      createdBy: "", // optional
+      venue: "",
+      address: "",
+      date: widget.date ?? "",
+      startTime: widget.starttime ?? "",
+      endTime: "",
+      entryFee: "",
+      offerPrice: "",
+      availableSlot: "",
+      imageUrls: [widget.Url.toString() ?? ""],
+      createdAt: DateTime.now(),
+    );
+    context.read<AuthBlocBloc>().add(AddJoinedEvent(event: event));
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TicketScreen(
+          user: userEmail.toString(),
+          paymentId: paymentId,
+          eventTitle: widget.title,
+          attnedees: attendeesCount,
+          qurl: qrUrl,
+        ),
+      ),
+    );
   }
 
   void _paymentfailure(PaymentFailureResponse response) {
@@ -90,7 +126,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     _razorpay.clear();
   }
 
-  void checkout(num amount, num phone, String email, String name) {
+  void checkout(num amount, String email, String name) {
     var options = {
       'key': 'rzp_test_RL1mown94Des4t',
       'amount': (amount * 100).toInt(),
@@ -99,7 +135,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       'description': 'Fine T-Shirt',
       'retry': {'enable': true, 'maxcount': 1},
       'send_sms_hash': true,
-      'prefill': {'contact': phone.toString(), 'email': email},
+      'prefill': {'email': email},
     };
     try {
       _razorpay.open(options);
@@ -467,18 +503,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Payment Method",
-                          style: TextStyle(
-                            fontFamily: CustomFontss.fontFamily,
-                            fontSize: 16,
+                        Flexible(
+                          child: Text(
+                            "Payment Method",
+                            style: TextStyle(
+                              fontFamily: CustomFontss.fontFamily,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text("Powered by"),
                             SizedBox(width: 10),
                             Container(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    120, // ← limit width so text doesn’t overflow
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 color: ColorConstant.PrimaryBlue,
@@ -489,6 +533,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               ),
                               child: Text(
                                 "Razorpay",
+                                overflow:
+                                    TextOverflow.ellipsis, // ← truncate text
+                                softWrap: false,
                                 style: TextStyle(
                                   color: ColorConstant.MainWhite,
                                   fontFamily: CustomFontss.fontFamily,
@@ -499,6 +546,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                       ],
                     ),
+
                     SizedBox(height: 16),
                     Container(
                       decoration: BoxDecoration(
@@ -614,12 +662,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                     return InkWell(
                       onTap: () {
-                        checkout(
-                          totalamount,
-                          7994208965,
-                          "shafeequemohd711@gmail.com",
-                          "shafeeque",
-                        );
+                        checkout(totalamount, userEmail ?? "", "shafeeque");
                       },
                       child: Container(
                         decoration: BoxDecoration(

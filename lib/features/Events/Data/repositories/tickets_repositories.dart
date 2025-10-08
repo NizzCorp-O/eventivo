@@ -1,17 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TicketsRepositories {
-  Future<bool> hasTicket(String eventId, String userId) async {
-    final doc = await FirebaseFirestore.instance
-        .collection("events")
-        .doc(eventId)
-        .collection("tickets")
-        .doc(userId)
-        .get();
-
-    return doc.exists;
-  }
-
   Future<Map<String, dynamic>?> getTicket(String eventId, String userId) async {
     final doc = await FirebaseFirestore.instance
         .collection("events")
@@ -20,7 +9,12 @@ class TicketsRepositories {
         .doc(userId)
         .get();
 
-    return doc.exists ? doc.data() : null;
+    if (doc.exists && doc.data() != null) {
+      return doc.data()!; // Direct map
+    }
+
+    return null;
+    // Ticket not found
   }
 
   Future<void> saveTicket(
@@ -37,6 +31,7 @@ class TicketsRepositories {
         .collection("tickets")
         .doc(userId);
     await doc.set({
+      "eventId":eventId,
       "paymentId": paymentId,
       "attendees": attendees,
       "eventTitle": eventTitle,

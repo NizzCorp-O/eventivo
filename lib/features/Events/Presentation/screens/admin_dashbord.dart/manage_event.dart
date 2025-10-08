@@ -1,10 +1,15 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 
 import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Data/models/Program_model.dart';
+import 'package:eventivo/features/Events/Data/models/program_model.dart';
+import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/Bloc/programs/bloc/programs_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Bottom_navigation_screen.dart';
+import 'package:eventivo/features/Events/Presentation/Bloc/programs/bloc/programs_bloc.dart'
+    hide PickedStartTime;
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/qr_scanner.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/scanned_tickets_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/particiipant_list_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/program_section.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +21,12 @@ class ManageEvent extends StatefulWidget {
   final String location;
   final String AvailableSlote;
   final String Entryfee;
+  final String offerPrice;
   final List<String> imageUrls;
   final int itemcount;
-  final String eventId;
+  final String myeventId;
+  final EventModel event;
+  final String totalfee;
 
   const ManageEvent({
     super.key,
@@ -29,7 +37,10 @@ class ManageEvent extends StatefulWidget {
     required this.Entryfee,
     required this.imageUrls,
     required this.itemcount,
-    required this.eventId,
+    required this.myeventId,
+    required this.event,
+    required this.offerPrice,
+    required this.totalfee,
   });
 
   @override
@@ -37,16 +48,20 @@ class ManageEvent extends StatefulWidget {
 }
 
 class _ManageEventState extends State<ManageEvent> {
+  List<ProgramModel> programsList = [];
+
   @override
   void initState() {
     super.initState();
-    context.read<ProgramsBloc>().add(GetProgramsEvent(widget.eventId));
+    context.read<ProgramsBloc>().add(GetProgramsEvent(widget.myeventId));
   }
 
   @override
   Widget build(BuildContext context) {
     TextEditingController programnController = TextEditingController();
     TextEditingController durationController = TextEditingController();
+    TextEditingController starttimepgmController = TextEditingController();
+    TextEditingController endtimepgmController = TextEditingController();
     TextEditingController progrmDescController = TextEditingController();
     TextEditingController venueController = TextEditingController(
       text: widget.location,
@@ -54,7 +69,6 @@ class _ManageEventState extends State<ManageEvent> {
     TextEditingController availableSlotController = TextEditingController(
       text: widget.AvailableSlote,
     );
-    int selectedIndex = 0;
 
     return Scaffold(
       backgroundColor: ColorConstant.MainWhite,
@@ -88,7 +102,11 @@ class _ManageEventState extends State<ManageEvent> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: NetworkImage(widget.URL),
+                        image: NetworkImage(
+                          widget.URL.isNotEmpty
+                              ? widget.URL
+                              : "https://static.vecteezy.com/system/resources/thumbnails/004/141/669/small_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg",
+                        ),
                       ),
                       color: Colors.grey.shade100,
 
@@ -111,96 +129,82 @@ class _ManageEventState extends State<ManageEvent> {
                   padding: const EdgeInsets.all(24),
                   child: Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: ColorConstant.MainWhite,
-
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: EdgeInsets.only(
-                          left: 45,
-                          top: 24,
-                          right: 45,
-                          bottom: 24,
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: ColorConstant.GradientColor1.withOpacity(
-                                  .1,
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: ColorConstant.MainWhite,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.all(16), // simpler padding
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: ColorConstant
+                                      .GradientColor1.withOpacity(.1),
                                 ),
-                              ),
-                              padding: EdgeInsets.all(10),
-                              child: Center(
+                                padding: const EdgeInsets.all(10),
                                 child: Icon(
                                   Icons.groups_2,
                                   color: ColorConstant.GradientColor1,
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 9),
-                            Text(
-                              "32",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
-                              ),
-                            ),
-                            SizedBox(height: 9),
-                            Text(
-                              "Participants",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: ColorConstant.MainWhite,
-
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: EdgeInsets.only(
-                          left: 45,
-                          top: 24,
-                          right: 45,
-                          bottom: 24,
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: Colors.green.withOpacity(.5),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 10,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "\$",
-                                  style: TextStyle(color: Colors.green),
+                              const SizedBox(height: 9),
+                              const Text(
+                                "32",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 9),
-                            Text(
-                              "\$2,500",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
+                              const SizedBox(height: 9),
+                              const Text(
+                                "Participants",
+                                style: TextStyle(color: Colors.black),
                               ),
-                            ),
-                            SizedBox(height: 9),
-                            Text(
-                              "Tottal revenue",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: ColorConstant.MainWhite,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.green.withOpacity(.2),
+                                ),
+                                padding: const EdgeInsets.all(10),
+                                child: const Icon(
+                                  Icons.currency_rupee,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              const SizedBox(height: 9),
+                              const Text(
+                                "₹2,500",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
+                                ),
+                              ),
+                              const SizedBox(height: 9),
+                              const Text(
+                                "Total revenue",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -211,56 +215,64 @@ class _ManageEventState extends State<ManageEvent> {
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.only(left: 25, right: 25),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 36, vertical: 17),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 4,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ScannedTickets()),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 36, vertical: 17),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 4,
 
-                      color: Colors.black.withOpacity(.5),
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  color: ColorConstant.GradientColor1,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: ColorConstant.MainWhite.withOpacity(.2),
+                        color: Colors.black.withOpacity(.5),
+                        offset: Offset(0, 2),
                       ),
-                      padding: EdgeInsets.all(21),
-                      child: Icon(
-                        Icons.qr_code,
-                        color: ColorConstant.MainWhite,
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Scan Ticket",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: ColorConstant.MainWhite,
-                            fontSize: 18,
-                          ),
+                    ],
+                    color: ColorConstant.GradientColor1,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ColorConstant.MainWhite.withOpacity(.2),
                         ),
+                        padding: EdgeInsets.all(21),
+                        child: Icon(
+                          Icons.qr_code,
+                          color: ColorConstant.MainWhite,
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Scan Ticket",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: ColorConstant.MainWhite,
+                              fontSize: 18,
+                            ),
+                          ),
 
-                        Text(
-                          "Tap to scan QR code",
-                          style: TextStyle(
-                            color: ColorConstant.MainWhite,
-                            fontSize: 14,
+                          Text(
+                            "Tap to scan QR code",
+                            style: TextStyle(
+                              color: ColorConstant.MainWhite,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -306,7 +318,7 @@ class _ManageEventState extends State<ManageEvent> {
               padding: const EdgeInsets.only(left: 24, right: 24),
               child: BlocBuilder<EventBloc, EventState>(
                 builder: (context, state) {
-                  if (state is EventFetched) {
+                  if (state is MyEventFetched) {
                     return Column(
                       children: [
                         GridView.builder(
@@ -344,7 +356,7 @@ class _ManageEventState extends State<ManageEvent> {
             ),
             SizedBox(height: 20),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding:  EdgeInsets.all(16),
 
               ///////////////  PROGRAM SECTION /////////////
               ///////////////  PROGRAM SECTION /////////////
@@ -364,6 +376,8 @@ class _ManageEventState extends State<ManageEvent> {
                   InkWell(
                     onTap: () {
                       alert_dailoque(
+                        endtimeController: endtimepgmController,
+                        starttimeController: starttimepgmController,
                         isEdit: false,
                         programId: "",
                         context: context,
@@ -407,7 +421,7 @@ class _ManageEventState extends State<ManageEvent> {
                   BlocConsumer<ProgramsBloc, ProgramsState>(
                     listener: (context, state) {
                       if (state is Programloading) {
-                        Center(child: CircularProgressIndicator());
+                        Center(child: Text("Program is Loading.."));
                       }
                     },
                     builder: (context, state) {
@@ -419,7 +433,7 @@ class _ManageEventState extends State<ManageEvent> {
                           onReorder: (oldIndex, newIndex) {
                             context.read<ProgramsBloc>().add(
                               ReorderEvents(
-                                ID: widget.eventId,
+                                ID: widget.myeventId,
                                 oldIndex: oldIndex,
                                 newIndex: newIndex,
                               ),
@@ -435,6 +449,12 @@ class _ManageEventState extends State<ManageEvent> {
                               child: Program_section(
                                 onEdit: () {
                                   alert_dailoque(
+                                    endtimeController: TextEditingController(
+                                      text: program.endTime,
+                                    ),
+                                    starttimeController: TextEditingController(
+                                      text: program.startTime,
+                                    ),
                                     programId: program.id,
                                     context: context,
                                     programnController: TextEditingController(
@@ -444,7 +464,7 @@ class _ManageEventState extends State<ManageEvent> {
                                       text: program.description,
                                     ),
                                     durationController: TextEditingController(
-                                      text: "0",
+                                      text: program.duration,
                                     ),
                                     isEdit: true,
                                   );
@@ -453,12 +473,14 @@ class _ManageEventState extends State<ManageEvent> {
                                   context.read<ProgramsBloc>().add(
                                     DeleteProgram(
                                       programid: program.id,
-                                      ID: widget.eventId,
+                                      ID: widget.myeventId,
                                     ),
                                   );
                                 },
                                 programtitle: program.title,
                                 programdesc: program.description,
+                                starttime: program.startTime,
+                                endtime: program.endTime,
                               ),
                             );
                           },
@@ -466,7 +488,7 @@ class _ManageEventState extends State<ManageEvent> {
                       }
 
                       // fallback state
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: Text("program loading.."));
                     },
                   ),
 
@@ -598,12 +620,9 @@ class _ManageEventState extends State<ManageEvent> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    state
-                                            .Events[selectedIndex]
-                                            .entryFee
-                                            .isNotEmpty
-                                        ? "\$${state.Events[selectedIndex].entryFee}"
-                                        : "\$0",
+                                    widget.Entryfee.isNotEmpty
+                                        ? "₹${widget.Entryfee}"
+                                        : "₹ 0",
 
                                     style: TextStyle(
                                       fontSize: 18,
@@ -621,12 +640,9 @@ class _ManageEventState extends State<ManageEvent> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    state
-                                            .Events[selectedIndex]
-                                            .offerPrice
-                                            .isNotEmpty
-                                        ? "\$${state.Events[selectedIndex].offerPrice}"
-                                        : "\$0",
+                                    widget.offerPrice.isNotEmpty
+                                        ? "₹${widget.offerPrice}"
+                                        : "₹ 0",
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -644,7 +660,7 @@ class _ManageEventState extends State<ManageEvent> {
                                   ),
                                   Spacer(),
                                   Text(
-                                    "\$5.00",
+                                    "\₹0",
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -669,13 +685,12 @@ class _ManageEventState extends State<ManageEvent> {
                                       fontSize: 16,
                                     ),
                                   ),
+
                                   Text(
-                                    state
-                                            .Events[selectedIndex]
-                                            .entryFee
-                                            .isNotEmpty
-                                        ? "\$${state.Events[selectedIndex].entryFee + state.Events[selectedIndex].offerPrice}"
+                                    widget.totalfee.isNotEmpty
+                                        ? widget.totalfee
                                         : "0",
+
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -688,7 +703,7 @@ class _ManageEventState extends State<ManageEvent> {
                           ),
                         );
                       }
-                      return Text("data");
+                      return Text("No Pricing");
                     },
                   ),
                 ],
@@ -716,31 +731,33 @@ class _ManageEventState extends State<ManageEvent> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
+                          shadowColor: Colors.white,
+                          buttonPadding: EdgeInsets.all(20),
                           backgroundColor: Colors.white,
                           actions: [
                             Padding(
-                              padding: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
 
                                 children: [
                                   Text(
-                                    "Are you sure ?",
+                                    "Are you sure want to delete ?",
                                     style: TextStyle(
                                       fontFamily: CustomFontss.fontFamily,
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   SizedBox(height: 20),
                                   BlocBuilder<EventBloc, EventState>(
                                     builder: (context, state) {
-                                      if (state is EventFetched) {
+                                      if (state is MyEventFetched) {
                                         return InkWell(
                                           onTap: () {
                                             context.read<EventBloc>().add(
                                               DeleteEvents(
-                                                eventid: widget.eventId,
+                                                eventid: widget.myeventId,
                                               ),
                                             );
                                             Navigator.pushReplacement(
@@ -753,6 +770,10 @@ class _ManageEventState extends State<ManageEvent> {
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
+                                              border: BoxBorder.all(
+                                                width: 1,
+                                                color: Colors.red,
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(16),
                                               color: ColorConstant.CancelClr,
@@ -765,6 +786,7 @@ class _ManageEventState extends State<ManageEvent> {
                                               child: Text(
                                                 "Delete",
                                                 style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
                                                   color: Colors.red,
                                                 ),
                                               ),
@@ -836,6 +858,8 @@ class _ManageEventState extends State<ManageEvent> {
     required TextEditingController programnController,
     required TextEditingController progrmDescController,
     required TextEditingController durationController,
+    required TextEditingController starttimeController,
+    required TextEditingController endtimeController,
     final bool? isEdit,
     required final String programId,
   }) {
@@ -957,46 +981,110 @@ class _ManageEventState extends State<ManageEvent> {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      hintText: "Enter Duration",
+                      hintText: "1 hour ",
                       hintStyle: TextStyle(color: ColorConstant.InputText),
                     ),
                   ),
                   SizedBox(height: 15),
+                  Text(
+                    "Start time ",
+                    style: TextStyle(
+                      fontFamily: CustomFontss.fontFamily,
+                      fontSize: 15,
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) =>
+                        InputValidator.validateStarttime(value),
+                    readOnly: true,
 
-                  // Expected Time Display
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(color: Colors.grey.shade100),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Expected time",
-                          style: TextStyle(
-                            fontFamily: CustomFontss.fontFamily,
-                            fontSize: 15,
-                          ),
+                    controller: starttimeController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: ColorConstant.InputBorder,
                         ),
-                        SizedBox(height: 5),
-                        Row(
-                          children: [
-                            SizedBox(width: 10),
-                            Text("From"),
-                            SizedBox(width: 5),
-                            Text(
-                              "6:30 AM",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            SizedBox(width: 5),
-                            Text("To"),
-                            SizedBox(width: 5),
-                            Text(
-                              "3:30 PM",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: ColorConstant.textfieldBG,
+                      filled: true,
+
+                      hintText: "Start Time",
+                      hintStyle: TextStyle(color: ColorConstant.InputText),
+                      prefixIcon: InkWell(
+                        onTap: () async {
+                          final pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (pickedTime != null) {
+                            final formattedTime = pickedTime.format(
+                              context,
+                            ); // e.g., "10:30 AM"
+                            starttimeController.text = formattedTime;
+                            context.read<EventBloc>().add(
+                              PickedStartTime(pickedTime),
+                            );
+                          }
+                        },
+                        child: Icon(
+                          Icons.access_time,
+                          color: ColorConstant.GradientColor2,
                         ),
-                      ],
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "End time",
+                    style: TextStyle(
+                      fontFamily: CustomFontss.fontFamily,
+                      fontSize: 15,
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) => InputValidator.validateEndTIme(value),
+                    readOnly: true,
+                    controller: endtimeController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: ColorConstant.InputBorder,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: ColorConstant.textfieldBG,
+                      filled: true,
+
+                      hintText: "End Time",
+                      hintStyle: TextStyle(color: ColorConstant.InputText),
+                      prefixIcon: InkWell(
+                        onTap: () async {
+                          final pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (pickedTime != null) {
+                            final formattedTime = pickedTime.format(
+                              context,
+                            ); // e.g., "10:30 AM"
+                            endtimeController.text = formattedTime;
+                            context.read<EventBloc>().add(
+                              PickedEndTime(pickedTime),
+                            );
+                          }
+                        },
+                        child: Icon(
+                          Icons.access_time,
+                          color: ColorConstant.GradientColor2,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ],
@@ -1004,7 +1092,7 @@ class _ManageEventState extends State<ManageEvent> {
             ),
           ),
 
-          // ✅ EDIT 5: Use actions for buttons only
+          //  EDIT 5: Use actions for buttons only
           actions: [
             Row(
               children: [
@@ -1042,12 +1130,16 @@ class _ManageEventState extends State<ManageEvent> {
                       if (isEdit == true) {
                         context.read<ProgramsBloc>().add(
                           UpdateProgram(
-                            widget.eventId,
+                            widget.myeventId,
                             progrmmodel: ProgramModel(
+                              endTime: endtimeController.text,
+                              description: progrmDescController.text,
+                              duration: durationController.text,
+                              startTime: starttimeController.text,
+
                               id: programId,
                               title: programnController.text,
-                              description: progrmDescController.text,
-                              time: "10:00 AM",
+
                               order: nextOrder, // pass current order
                             ),
                           ),
@@ -1055,13 +1147,20 @@ class _ManageEventState extends State<ManageEvent> {
                       } else {
                         context.read<ProgramsBloc>().add(
                           AddProgramEvent(
-                            ID: widget.eventId,
+                            ID: widget.myeventId,
                             programmodel: ProgramModel(
+                              endTime: endtimeController.text,
                               id: "",
-                              title: programnController.text,
+                              title: programnController.text.isNotEmpty
+                                  ? programnController.text
+                                  : "untitled",
                               description: progrmDescController.text,
-                              time: "10:00 AM",
-                              order: nextOrder, // new program at the end
+                              startTime: starttimeController.text,
+
+                              duration: durationController.text,
+                              order: programsList.isEmpty
+                                  ? 0
+                                  : programsList.last.order + 1,
                             ),
                           ),
                         );
@@ -1069,6 +1168,9 @@ class _ManageEventState extends State<ManageEvent> {
 
                       programnController.clear();
                       progrmDescController.clear();
+                      durationController.clear();
+                      starttimeController.clear();
+                      endtimeController.clear();
                       Navigator.pop(context);
                     },
 

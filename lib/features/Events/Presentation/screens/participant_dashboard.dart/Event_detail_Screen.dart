@@ -1,9 +1,7 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Data/models/Program_model.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/programs/bloc/programs_bloc.dart';
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/payment_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/container_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,6 +18,9 @@ class EventDetailScreen extends StatefulWidget {
   final String endtime;
   final String venue;
   final String address;
+  final void Function()? onJoin;
+  final void Function()? onTicket;
+  final void Function()? onChat;
 
   const EventDetailScreen({
     super.key,
@@ -33,6 +34,9 @@ class EventDetailScreen extends StatefulWidget {
     required this.venue,
     required this.address,
     required this.events,
+    required this.onJoin,
+    this.onChat,
+    this.onTicket,
   });
 
   @override
@@ -40,6 +44,7 @@ class EventDetailScreen extends StatefulWidget {
 }
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
+  bool favorite = false;
   @override
   void initState() {
     super.initState();
@@ -50,10 +55,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController descController = TextEditingController();
-    TextEditingController timeController = TextEditingController();
-
     DateTime eventDate = DateFormat('dd MMM yyyy').parse(widget.date);
 
     String formattedDate = DateFormat('MMMM dd yyyy').format(eventDate);
@@ -66,6 +67,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 24),
           child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             onTap: () {
               Navigator.pop(context);
             },
@@ -85,7 +88,20 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 24),
-            child: Icon(Icons.favorite_border, size: 28),
+            child: InkWell(
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+              splashColor: Colors.transparent,
+              onTap: () {
+                setState(() {
+                  favorite = !favorite;
+                });
+              },
+              child: Icon(
+                Icons.favorite,
+                size: 28,
+                color: favorite ? Colors.red : Colors.grey,
+              ),
+            ),
           ),
         ],
       ),
@@ -166,7 +182,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             Row(
                               children: [
                                 Text(
-                                  widget.starttime,
+                                  widget.starttime.toString(),
                                   style: TextStyle(
                                     color: ColorConstant.Subtittle,
                                     fontWeight: FontWeight.w400,
@@ -177,7 +193,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 Text("to"),
                                 SizedBox(width: 10),
                                 Text(
-                                  widget.endtime,
+                                  widget.endtime.toString(),
                                   style: TextStyle(
                                     color: ColorConstant.Subtittle,
                                     fontWeight: FontWeight.w400,
@@ -245,7 +261,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 "Media Gellery",
                 style: TextStyle(
                   fontFamily: CustomFontss.fontFamily,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   fontSize: 16,
                 ),
               ),
@@ -298,30 +314,30 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 15),
               Text(
                 "Event Programs",
                 style: TextStyle(
                   fontFamily: CustomFontss.fontFamily,
                   fontWeight: FontWeight.w600,
-                  fontSize: 16,
+                  fontSize: 20,
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 5),
 
               BlocBuilder<ProgramsBloc, ProgramsState>(
                 builder: (context, state) {
                   if (state is Programloading) {
-                    return Center(child: CircularProgressIndicator());
+                    return Text("");
                   }
                   if (state is ProgramsLoaded) {
                     return Column(
                       children: List.generate(
                         state.programs.length,
                         (index) => Padding(
-                          padding: const EdgeInsets.all(6),
+                          padding: const EdgeInsets.all(1),
                           child: Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: EdgeInsets.all(16),
                             margin: const EdgeInsets.symmetric(
                               vertical: 6,
                               horizontal: 0,
@@ -359,9 +375,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                       ),
                                     ),
                                     Text(
-                                      state.programs[index].time,
+                                      state.programs[index].startTime,
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w500,
                                         color: ColorConstant.GradientColor1,
                                       ),
@@ -372,26 +388,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 Text(
                                   state.programs[index].description,
                                   style: TextStyle(
-                                    fontFamily: CustomFontss.fontFamily,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
-                                    color: ColorConstant.Subtittle,
+                                    color: Colors.grey,
                                     height: 1.4,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      "Duration : 60 mins",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                        color: Color(0xFF6B7280),
-                                      ),
-                                    ),
-                                  ],
+
+                                Text(
+                                  "Duration : ${state.programs[index].duration}",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                    color: ColorConstant.PrimaryBlue,
+                                  ),
                                 ),
                               ],
                             ),
@@ -406,21 +417,92 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               ),
               SizedBox(height: 17),
 
+              //       BlocListener<TicketsBloc, TicketsState>(
+              //         listener: (context, state) {
+              //  if (state is TicketSaved) {
+              //         Navigator.pushReplacement(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (_) => QRScreen(
+              //           paymentId:
+              //           eventTitle: widget.eventName,
+              //           attnedees: attendeesCount,
+              //         ),
+              //       ),
+              //     );
+
+              //  }
+              //         },
+              //         child: Padding(
+              //           padding: const EdgeInsets.symmetric(horizontal: 50),
+              //           child: Container(
+              //             height: 60,
+              //             width: double.infinity,
+              //             decoration: BoxDecoration(
+              //               color: ColorConstant.PrimaryBlue,
+              //               borderRadius: BorderRadius.circular(15),
+              //             ),
+              //             child: Center(
+              //               child: Text(
+              //                 "Get ticket",
+              //                 style: TextStyle(
+              //                   color: ColorConstant.MainWhite,
+
+              //                   fontFamily: CustomFontss.fontFamily,
+              //                   fontWeight: FontWeight.w400,
+              //                   fontSize: 16,
+              //                 ),
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+
               ////////// JION BUTTON SECTION ///////////
               ///////////// JION BUTTON SECTION ///////////
-              ContainerButton(
-                title: "Join Event",
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PaymentScreen()),
-                  );
-                },
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        offset: Offset(0, 5),
+                        blurRadius: 5,
+                        color: Colors.grey,
+                      ),
+                    ],
+
+                    color: ColorConstant.PrimaryBlue,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      minimumSize: Size(double.infinity, 56),
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: widget.onTicket,
+
+                    child: Text(
+                      "Get Your Ticket",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: ColorConstant.MainWhite,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
               ),
+              ContainerButton(title: "Join Event", onPressed: widget.onJoin),
               SizedBox(height: 12),
               ////////////. chat section //////////
               InkWell(
-                onTap: () {},
+                onTap: widget.onChat,
+
                 child: Container(
                   height: 60,
                   width: double.infinity,
@@ -455,7 +537,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
             ],
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/chat_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/participant_home_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/profile_screen.dart';
+import 'package:eventivo/features/chat/presentation/screens/event_chat.dart';
 
 import 'package:flutter/material.dart';
 
@@ -34,6 +34,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: false,
       body: getCurrentScreen(),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,

@@ -22,6 +22,7 @@ class AddEventEvent extends EventEvent {
 // }
 
 class getEvents extends EventEvent {}
+class Myevents extends EventEvent{}
 
 class PickImageEvent extends EventEvent {}
 

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/buildDot.dart';
 import 'package:eventivo/features/auth/presentation/pages/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,11 +19,19 @@ class _SplashScreenState extends State<SplashScreen> {
   late Timer _timer;
   @override
   void initState() {
-    Future.delayed(Duration(seconds: 4)).then((value) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
+    User? user = FirebaseAuth.instance.currentUser;
+    Future.delayed(Duration(seconds: 5)).then((value) {
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MyHomePage()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
     });
     super.initState();
     _timer = Timer.periodic(const Duration(milliseconds: 400), (timer) {

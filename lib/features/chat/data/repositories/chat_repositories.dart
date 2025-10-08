@@ -17,7 +17,19 @@ class ChatService {
         .collection("chats")
         .orderBy("timestamp", descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => ChatModel.fromJson(doc.data())).toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ChatModel.fromJson(doc.data()))
+              .toList(),
+        );
+  }
+
+  Future<void> deleteMessage(String eventId, String messageId) async {
+    await FirebaseFirestore.instance
+        .collection("events")
+        .doc(eventId)
+        .collection("chats")
+        .doc(messageId)
+        .delete();
   }
 }

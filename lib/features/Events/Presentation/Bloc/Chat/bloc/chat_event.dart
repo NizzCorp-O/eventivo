@@ -12,3 +12,10 @@ class SendMessageEvent extends ChatEvent {
   final ChatModel message;
   SendMessageEvent({required this.eventId, required this.message});
 }
+class DeleteMessage extends ChatEvent{
+   final String eventId;
+  final String messageId;
+
+  DeleteMessage({required this.eventId, required this.messageId});
+  
+}

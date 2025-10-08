@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatModel {
+ 
   String senderId;
   String senderName; // display name of sender
   String message;

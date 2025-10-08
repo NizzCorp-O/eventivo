@@ -5,6 +5,9 @@ import 'package:eventivo/features/Events/Data/models/chat_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_event.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_state.dart';
+import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
+import 'package:eventivo/features/chat/presentation/widgets/recieve_message.dart';
+import 'package:eventivo/features/chat/presentation/widgets/send_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,6 +30,18 @@ class MessageScreen extends StatefulWidget {
   State<MessageScreen> createState() => _MessageScreenState();
 }
 
+Future<String?> getUserProfileImage(String userId) async {
+  final doc = await FirebaseFirestore.instance
+      .collection("users")
+      .doc(userId)
+      .get();
+
+  if (doc.exists && doc.data()!.containsKey("profileImage")) {
+    return doc.data()!["profileImage"];
+  }
+  return null; // default image
+}
+
 class _MessageScreenState extends State<MessageScreen> {
   TextEditingController messageController = TextEditingController();
 
@@ -34,6 +49,7 @@ class _MessageScreenState extends State<MessageScreen> {
   void initState() {
     super.initState();
     context.read<ChatBloc>().add(LoadMessages(widget.eventId));
+    context.read<AuthBlocBloc>().add(LoadProfileImageEvent());
   }
 
   String _formatTime(Timestamp timestamp) {
@@ -56,6 +72,8 @@ class _MessageScreenState extends State<MessageScreen> {
     int maxLength = 15;
 
     return Scaffold(
+      backgroundColor: ColorConstant.MainWhite,
+
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
@@ -138,7 +156,7 @@ class _MessageScreenState extends State<MessageScreen> {
           ),
         ),
       ),
-      backgroundColor: ColorConstant.MainWhite,
+
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -157,9 +175,7 @@ class _MessageScreenState extends State<MessageScreen> {
       ),
       body: BlocBuilder<ChatBloc, ChatState>(
         builder: (context, state) {
-          if (state is ChatLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else if (state is ChatLoaded) {
+          if (state is ChatLoaded) {
             return ListView.builder(
               reverse: true, // newest messages at bottom
               padding: const EdgeInsets.only(bottom: 80),
@@ -169,16 +185,39 @@ class _MessageScreenState extends State<MessageScreen> {
                 final isMe = chat.senderId == widget.currentUser;
 
                 if (isMe) {
-                  return SendMessages(
-                    message: chat.message,
-                    time: _formatTime(chat.timestamp),
+                  return FutureBuilder<String?>(
+                    future: getUserProfileImage(widget.currentUser), // senderId
+                    builder: (context, snapshot) {
+                      final profileImage = snapshot.data;
+
+                      return SendMessages(
+                        profilepic:
+                            (profileImage != null && profileImage.isNotEmpty)
+                            ? profileImage // valid URL
+                            : "", // empty → will show icon in CircleAvatar
+                        message: chat.message,
+                        time: _formatTime(chat.timestamp),
+                      );
+                    },
                   );
                 } else {
-                  return RecievedMessages(
-                    userName: chat.senderName,
-                    maxLenght: maxLength,
-                    message: chat.message,
-                    time: _formatTime(chat.timestamp),
+                  return FutureBuilder<String?>(
+                    initialData: "",
+                    future: getUserProfileImage(chat.senderId),
+                    builder: (context, snapshot) {
+                      final profileImage =
+                          (snapshot.data != null && snapshot.data!.isNotEmpty)
+                          ? snapshot.data!
+                          : ""; // empty → means no image
+
+                      return RecievedMessages(
+                        profileImage: profileImage,
+                        userName: chat.senderName,
+                        maxLenght: maxLength,
+                        message: chat.message,
+                        time: _formatTime(chat.timestamp),
+                      );
+                    },
                   );
                 }
               },
@@ -186,132 +225,10 @@ class _MessageScreenState extends State<MessageScreen> {
           } else if (state is ChatError) {
             return Center(child: Text(state.error));
           }
-          return Container();
+          return Text("");
         },
       ),
     );
   }
 }
 
-///////////////////////////////////////////// Chat UI Widgets /////////////////////////////////////////////
-class SendMessages extends StatelessWidget {
-  final String message;
-  final String time;
-  const SendMessages({super.key, required this.message, required this.time});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      time,
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    SizedBox(width: 6),
-                    Text("You", style: TextStyle(fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                SizedBox(height: 6),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                    ),
-                    color: ColorConstant.GradientColor1,
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Text(message, style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 8),
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage("assets/images/user.png"),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class RecievedMessages extends StatelessWidget {
-  final String userName;
-  final int maxLenght;
-  final String message;
-  final String time;
-
-  const RecievedMessages({
-    super.key,
-    required this.userName,
-    required this.maxLenght,
-    required this.message,
-    required this.time,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String? profileUrl = FirebaseAuth.instance.currentUser?.photoURL;
-    print("profile url : $profileUrl");
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(radius: 20, backgroundColor: Colors.grey),
-          SizedBox(width: 5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      userName.length <= maxLenght
-                          ? userName
-                          : "${userName.substring(0, maxLenght)}...",
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      time,
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(16),
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(10),
-                    ),
-                    color: Colors.blueAccent,
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Text(message, style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

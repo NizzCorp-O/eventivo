@@ -26,6 +26,8 @@ class EventCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 18, top: 5, bottom: 5, right: 18),
       child: InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: onTap,
         child: Container(
           child: Column(
@@ -95,7 +97,7 @@ class EventCard extends StatelessWidget {
                               child: Text(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                time,
+                                time.toString(),
                               ),
                             ),
                           ],

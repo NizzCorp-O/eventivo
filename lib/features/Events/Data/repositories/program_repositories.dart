@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:eventivo/features/Events/Data/models/Program_model.dart';
+import 'package:eventivo/features/Events/Data/models/program_model.dart';
 
 class ProgramRepositories {
   Future<void> addProgram(String eventId, ProgramModel program) async {

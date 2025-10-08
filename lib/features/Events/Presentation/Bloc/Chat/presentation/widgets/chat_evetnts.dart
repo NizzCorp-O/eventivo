@@ -3,7 +3,6 @@ import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_event.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/event_Chat_creen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,24 +69,6 @@ class _chat_EventsState extends State<chat_Events> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 10,
-
-                          backgroundColor: ColorConstant.GradientColor2,
-                          child: Text(
-                            widget.recentmessagecount,
-                            style: TextStyle(
-                              fontFamily: CustomFontss.fontFamily,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                              color: ColorConstant.MainWhite,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   SizedBox(width: 16),
@@ -112,7 +93,14 @@ class _chat_EventsState extends State<chat_Events> {
                               ),
                             ),
                             SizedBox(width: 8),
-                            Text("${widget.time} ago"),
+                            Text(
+                              "${widget.time}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                                color: ColorConstant.GradientColor1,
+                              ),
+                            ),
                           ],
                         ),
 
@@ -120,6 +108,7 @@ class _chat_EventsState extends State<chat_Events> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           widget.recentmessage,
+                          style: TextStyle(color: ColorConstant.PrimaryBlue),
                         ),
                         SizedBox(height: 8),
                         Row(

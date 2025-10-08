@@ -14,14 +14,32 @@ class EventLoaded extends EventState {
    final String eventId;
    EventSuccess({required this.eventId});
 
+
 }
 class EventFetched extends EventState {
   List<EventModel> Events;
   EventFetched(this.Events);
 }
+class MyEventFetched extends EventState{
 
+  List<EventModel>myevents;
+  MyEventFetched(this.myevents);
+
+}
 class EventLoading extends EventState {}
+
+class MyEventLoading extends EventState{}
 class ImageLoading extends EventState{}
+class SearchEventsEvent extends EventEvent {
+  final String query;
+  SearchEventsEvent({required this.query});
+}
+class SearchEventLoaded extends EventState{
+    final List<EventModel> events;
+
+  SearchEventLoaded({required this.events});
+ 
+}
 
 // class ProgramAdded extends EventState {}
 // class Programloading extends EventState {}
@@ -36,8 +54,8 @@ class ImageLoading extends EventState{}
 
 
 class EventAdded extends EventState {
-   final EventModel eventModel;
-  EventAdded({required this.eventModel});
+  
+
 }
 
 class EventError extends EventState {

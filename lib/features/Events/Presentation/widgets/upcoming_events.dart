@@ -3,7 +3,12 @@ import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:flutter/material.dart';
 
 class UpcomingEvent extends StatelessWidget {
-  const UpcomingEvent({super.key});
+  final String eventId;
+  final String title;
+  final String imageUlr;
+  final String date ;
+  final String starttime;
+  const UpcomingEvent({super.key, required this.title, required this.imageUlr, required this.date, required this.starttime, required this.eventId});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +27,7 @@ class UpcomingEvent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: AssetImage("assets/images/img (1).png"),
+                  image: NetworkImage(imageUlr)
                 ),
               ),
               height: 48,
@@ -34,7 +39,7 @@ class UpcomingEvent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Tech conference 2024 ",
+                   title,
                     maxLines: 1,
                     // softWrap: true,
                     overflow: TextOverflow.ellipsis,
@@ -47,14 +52,14 @@ class UpcomingEvent extends StatelessWidget {
                   SizedBox(height: 4),
                   Row(
                     children: [
-                      Text("Jan 15, 2024"),
+                      Text(date),
                       SizedBox(width: 10),
                       CircleAvatar(
                         radius: 3,
                         backgroundColor: ColorConstant.MainBlack,
                       ),
                       SizedBox(width: 10),
-                      Text("09:00 AM"),
+                      Text(starttime),
                     ],
                   ),
                 ],

@@ -1,9 +1,16 @@
 class LoginModel {
   final String name;
   final String email;
-  final String password;
+  final num phone;
+  final String pass;
+   final String? profileUrl;
 
-  LoginModel({required this.name, required this.password, required this.email});
+  LoginModel(this.profileUrl, {
+    required this.pass,
+    required this.name,
+    required this.email,
+    required this.phone,
+  });
 
   // Map<String, dynamic> toJson() {
   //   return {'email': email, 'password': password};

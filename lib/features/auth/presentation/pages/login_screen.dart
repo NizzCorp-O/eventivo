@@ -1,7 +1,5 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/admin_home_screen.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/Bottom_navigation_screen.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/participant_home_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/container_button.dart';
 import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
 import 'package:eventivo/features/auth/presentation/pages/forgot_password.dart';
@@ -40,13 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       builder: (context) => MyHomePage(), // Admin home
                     ),
                   );
-                } else
+                } else {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => ParticipantHomeScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => MyHomePage()),
                   );
+                }
               } else if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Login failed. Please try again.')),

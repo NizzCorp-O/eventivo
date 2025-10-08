@@ -15,3 +15,7 @@ class ChatError extends ChatState {
   final String error;
   ChatError(this.error);
 }
+class MessageDelete extends ChatState{
+
+  
+}
