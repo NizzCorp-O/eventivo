@@ -6,12 +6,12 @@ import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/event_creation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/manage_event.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/edit_profile_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/my_events.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/upcoming_events.dart';
 import 'package:eventivo/features/auth/presentation/bloc/auth_bloc_bloc.dart';
 import 'package:eventivo/features/auth/presentation/pages/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,16 +28,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     context.read<EventBloc>().add(Myevents());
     context.read<AuthBlocBloc>().add(FetchJoinedEvents());
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // String profileUrl = "";
-    // String userEmail = "";
-
     User? user = FirebaseAuth.instance.currentUser;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorConstant.MainWhite,
@@ -62,49 +59,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-
                     children: [
-                      SizedBox(height: 32),
-                      BlocConsumer<AuthBlocBloc, AuthBlocState>(
-                        listener: (context, state) {
-                          if (state is ProfilePickedError) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Image picking failed")),
+                      const SizedBox(height: 32),
+
+                      //  PROFILE IMAGE WITH STREAMBUILDER
+                      StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const CircleAvatar(
+                              radius: 60,
+                              child: Icon(Icons.person, size: 50),
                             );
                           }
-                        },
-                        builder: (context, state) {
-                          File? pickedFile;
 
-                          if (state is ProfileImagePicked) {
-                            pickedFile = state.imageFile;
-                          }
+                          final userData =
+                              snapshot.data!.data() as Map<String, dynamic>?;
+
+                          final profileImage = userData?['profileImage'] ?? "";
+
                           return Stack(
                             children: [
-                              BlocBuilder<AuthBlocBloc, AuthBlocState>(
-                                builder: (context, state) {
-                                  return CircleAvatar(
-                                    backgroundColor: ColorConstant.PrimaryBlue,
-                                    backgroundImage: pickedFile != null
-                                        ? FileImage(pickedFile)
-                                        : state is ProfileImageUpdated
-                                        ? NetworkImage(state.imageUrl)
-                                              as ImageProvider
-                                        : null,
-                                    child:
-                                        pickedFile == null &&
-                                            !(state is ProfileImageUpdated)
-                                        ? const Icon(
-                                            Icons.person,
-                                            size: 50,
-                                            color: Colors.white,
-                                          )
-                                        : null,
-                                    radius: 60,
-                                  );
-                                },
+                              CircleAvatar(
+                                radius: 60,
+                                backgroundColor: Colors.grey.shade100,
+                                backgroundImage: profileImage.isNotEmpty
+                                    ? NetworkImage(profileImage)
+                                    : null,
+                                child: profileImage.isEmpty
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: Colors.white,
+                                      )
+                                    : null,
                               ),
-
                               Positioned(
                                 bottom: 0,
                                 right: 0,
@@ -125,7 +117,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           .currentUser!
                                           .uid;
 
-                                      // Step 2: Upload & update Firestore
                                       context.read<AuthBlocBloc>().add(
                                         UpdateProfileImageEvent(file, userId),
                                       );
@@ -147,10 +138,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       Text(
-                        user?.displayName ?? "unknown name",
+                        user?.displayName ?? "Unknown Name",
                         style: TextStyle(
                           fontFamily: CustomFontss.fontFamily,
                           fontSize: 24,
@@ -159,17 +150,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        user?.email ?? "unverified email",
+                        user?.email ?? "Unverified Email",
                         style: TextStyle(
                           fontSize: 16,
                           color: ColorConstant.Subtittle,
                         ),
                       ),
 
-                      SizedBox(height: 30),
-
+                      const SizedBox(height: 30),
                       SizedBox(
                         width: 180,
                         height: 50,
@@ -180,7 +170,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(),
+                              ),
+                            );
+                          },
                           child: const Text(
                             "Edit Profile",
                             style: TextStyle(fontSize: 18, color: Colors.white),
@@ -190,7 +187,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 32),
+
+                const SizedBox(height: 32),
                 Text(
                   "Joined Events",
                   style: TextStyle(
@@ -199,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 18),
+                const SizedBox(height: 18),
 
                 BlocBuilder<AuthBlocBloc, AuthBlocState>(
                   builder: (context, state) {
@@ -239,10 +237,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-                ///////////// ADD EVENT SECTION /////////////
-                ///////////// ADD EVENT SECTION /////////////
                 Row(
                   children: [
                     Text(
@@ -253,60 +249,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     InkWell(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EventCreationScreen(),
+                            builder: (context) => const EventCreationScreen(),
                           ),
                         );
                       },
-
-                      //async {
-                      //   try {
-                      //     final userDoc = await FirebaseFirestore.instance
-                      //         .collection('users')
-                      //         .doc(FirebaseAuth.instance.currentUser!.uid)
-                      //         .get();
-
-                      //     final role = userDoc.data()?['role'] ?? 'participant';
-
-                      //     if (role == "admin") {
-                      //       Navigator.push(
-                      //         context,
-                      //         MaterialPageRoute(
-                      //           builder: (context) => EventCreationScreen(),
-                      //         ),
-                      //       );
-                      //     } else {
-                      //       ScaffoldMessenger.of(context).showSnackBar(
-                      //         SnackBar(
-                      //           content: Text(
-                      //             "You don’t have permission to create events",
-                      //           ),
-                      //         ),
-                      //       );
-                      //     }
-                      //   } catch (e) {
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       SnackBar(content: Text("Something went wrong: $e")),
-                      //     );
-                      //   }
-                      // },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 9,
                         ),
                         child: Row(
-                          children: [
-                            Icon(Icons.add, color: ColorConstant.MainWhite),
+                          children: const [
+                            Icon(Icons.add, color: Colors.white),
                             SizedBox(width: 5),
                             Text(
                               "Create Event",
-                              style: TextStyle(color: ColorConstant.MainWhite),
+                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
@@ -318,11 +282,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
+
                 BlocConsumer<EventBloc, EventState>(
-                  listener: (context, state) {
-                    // TODO: implement listener
-                  },
+                  listener: (context, state) {},
                   builder: (context, state) {
                     if (state is MyEventLoading) {
                       return Center(
@@ -351,68 +314,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       }
                       return Column(
-                        children:
-                            ////////////// MY EVENT ///////////////////
-                            ///////////// MY EVENT ///////////////////
-                            List.generate(
-                              state.myevents.length,
-                              (index) => My_Events(
-                                title: state.myevents[index].name,
-                                URL: state.myevents[index].imageUrls[0],
-                                date: state.myevents[index].date,
-                                time: state.myevents[index].startTime,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      final entryFee =
-                                          state.myevents[index].entryFee;
-                                      final offerPrice =
-                                          state.myevents[index].offerPrice;
+                        children: List.generate(
+                          state.myevents.length,
+                          (index) => My_Events(
+                            title: state.myevents[index].name,
+                            URL: state.myevents[index].imageUrls[0],
+                            date: state.myevents[index].date,
+                            time: state.myevents[index].startTime,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  final entryFee =
+                                      state.myevents[index].entryFee;
+                                  final offerPrice =
+                                      state.myevents[index].offerPrice;
 
-                                      // convert strings safely
-                                      final entry = int.tryParse(entryFee) ?? 0;
-                                      final offer =
-                                          int.tryParse(offerPrice) ?? 0;
+                                  final entry = int.tryParse(entryFee) ?? 0;
+                                  final offer = int.tryParse(offerPrice) ?? 0;
 
-                                      // total = entryFee - offerPrice + platformFee
-                                      final total = (entry - offer);
-                                      return ManageEvent(
-                                        offerPrice:
-                                            state.myevents[index].offerPrice,
-                                        event: state.myevents[index],
-                                        myeventId: state.myevents[index].id,
-                                        itemcount: state
-                                            .myevents[index]
-                                            .imageUrls
-                                            .length,
-                                        imageUrls:
-                                            state.myevents[index].imageUrls,
-                                        title: state.myevents[index].name,
-                                        URL: state
-                                            .myevents[index]
-                                            .imageUrls
-                                            .last,
-                                        AvailableSlote:
-                                            state.myevents[index].availableSlot,
-                                        Entryfee:
-                                            state.myevents[index].entryFee,
-                                        location: state.myevents[index].venue,
-                                        totalfee: total.toString(),
-                                        // imageUrl: images[index],
-                                      );
-                                    },
-                                  ),
-                                ),
+                                  final total = (entry - offer);
+                                  return ManageEvent(
+                                    offerPrice:
+                                        state.myevents[index].offerPrice,
+                                    event: state.myevents[index],
+                                    myeventId: state.myevents[index].id,
+                                    itemcount:
+                                        state.myevents[index].imageUrls.length,
+                                    imageUrls: state.myevents[index].imageUrls,
+                                    title: state.myevents[index].name,
+                                    URL: state.myevents[index].imageUrls.last,
+                                    AvailableSlote:
+                                        state.myevents[index].availableSlot,
+                                    Entryfee: state.myevents[index].entryFee,
+                                    location: state.myevents[index].venue,
+                                    totalfee: total.toString(),
+                                  );
+                                },
                               ),
                             ),
+                          ),
+                        ),
                       );
                     }
-                    return Text("Only admin can create Event");
+                    return const Text("Only admin can create Event");
                   },
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
+
                 Center(
                   child: InkWell(
                     onTap: () async {
@@ -421,16 +371,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     },
-                    //////// Logout Button //////
                     child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           vertical: 12,
                           horizontal: 16,
                         ),
                         decoration: BoxDecoration(
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: Colors.grey,
                               blurRadius: 5,
@@ -456,7 +405,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),
