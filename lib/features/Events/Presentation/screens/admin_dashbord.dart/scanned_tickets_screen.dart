@@ -7,6 +7,7 @@ import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dar
 import 'package:eventivo/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ScannedTickets extends StatefulWidget {
   const ScannedTickets({super.key});
@@ -16,6 +17,23 @@ class ScannedTickets extends StatefulWidget {
 }
 
 class _ScannedTicketsState extends State<ScannedTickets> {
+  String timeAgo(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inSeconds < 60) {
+      return "${diff.inSeconds}s ago";
+    } else if (diff.inMinutes < 60) {
+      return "${diff.inMinutes}m ago";
+    } else if (diff.inHours < 24) {
+      return "${diff.inHours}h ago";
+    } else {
+      return "${diff.inDays}d ago";
+    }
+  }
+
+  final scannedTime = DateTime.now().subtract(Duration(minutes: 2));
+  String get formattedTime => timeago.format(scannedTime);
   final User? user = FirebaseAuth.instance.currentUser;
   String? profileimage;
   num scannedtickets = 0;
@@ -123,7 +141,7 @@ class _ScannedTicketsState extends State<ScannedTickets> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),         
+            const SizedBox(height: 16),
             // List of recent scans
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
@@ -131,7 +149,6 @@ class _ScannedTicketsState extends State<ScannedTickets> {
                     .orderBy('scannedAt', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  log("streamingggggg");
                   if (snapshot.hasError) {
                     return const Center(child: Text("Error loading tickets"));
                   }
@@ -212,14 +229,14 @@ class _ScannedTicketsState extends State<ScannedTickets> {
                                         ),
                                       ),
                                       Text(
-                                        "Attendees: $attendees",
+                                        "Attendees:$attendees",
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
                                           color: ColorConstant.PrimaryBlue,
                                         ),
                                       ),
                                       Text(
-                                        "Payment ID: $paymentId",
+                                        "Scanned ${timeAgo(data['scannedAt'] != null ? (data['scannedAt'] as Timestamp).toDate() : DateTime.now())}",
                                         style: TextStyle(
                                           color: ColorConstant.PrimaryBlue,
                                           fontSize: 12,
