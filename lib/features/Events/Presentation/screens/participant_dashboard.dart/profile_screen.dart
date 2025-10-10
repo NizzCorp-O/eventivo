@@ -24,10 +24,26 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String? userRole;
+  Future<void> fetchUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+      if (userDoc.exists) {
+        userRole = userDoc['role'];
+        setState(() {});
+      }
+    }
+  }
+
   @override
   void initState() {
     context.read<EventBloc>().add(Myevents());
     context.read<AuthBlocBloc>().add(FetchJoinedEvents());
+    fetchUserRole();
     super.initState();
   }
 
@@ -238,121 +254,132 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                Row(
-                  children: [
-                    Text(
-                      "My Events",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: CustomFontss.fontFamily,
-                        fontWeight: FontWeight.w600,
+                if (userRole == "admin") ...[
+                  Row(
+                    children: [
+                      Text(
+                        "My Events",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: CustomFontss.fontFamily,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const EventCreationScreen(),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EventCreationScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 9,
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(Icons.add, color: Colors.white),
+                              SizedBox(width: 5),
+                              Text(
+                                "Create Event",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: ColorConstant.PrimaryBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  BlocConsumer<EventBloc, EventState>(
+                    listener: (context, state) {},
+                    builder: (context, state) {
+                      if (state is MyEventLoading) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: ColorConstant.GradientColor1,
+                            color: ColorConstant.MainBlack,
                           ),
                         );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 9,
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(Icons.add, color: Colors.white),
-                            SizedBox(width: 5),
-                            Text(
-                              "Create Event",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: ColorConstant.PrimaryBlue,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                BlocConsumer<EventBloc, EventState>(
-                  listener: (context, state) {},
-                  builder: (context, state) {
-                    if (state is MyEventLoading) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          backgroundColor: ColorConstant.GradientColor1,
-                          color: ColorConstant.MainBlack,
-                        ),
-                      );
-                    }
-
-                    if (state is MyEventFetched) {
-                      if (state.myevents.isEmpty) {
-                        return Text("");
                       }
 
-                      return Column(
-                        children: List.generate(
-                          state.myevents.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: My_Events(
-                              title: state.myevents[index].name,
-                              URL: state.myevents[index].imageUrls[0],
-                              date: state.myevents[index].date,
-                              time: state.myevents[index].startTime,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    final entryFee =
-                                        state.myevents[index].entryFee;
-                                    final offerPrice =
-                                        state.myevents[index].offerPrice;
+                      if (state is MyEventFetched) {
+                        if (state.myevents.isEmpty) {
+                          return Text("");
+                        }
 
-                                    final entry = int.tryParse(entryFee) ?? 0;
-                                    final offer = int.tryParse(offerPrice) ?? 0;
+                        return Column(
+                          children: List.generate(
+                            state.myevents.length,
+                            (index) => Padding(
+                              padding: const EdgeInsets.only(
+                                top: 10,
+                                bottom: 10,
+                              ),
+                              child: My_Events(
+                                title: state.myevents[index].name,
+                                URL: state.myevents[index].imageUrls[0],
+                                date: state.myevents[index].date,
+                                time: state.myevents[index].startTime,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      final entryFee =
+                                          state.myevents[index].entryFee;
+                                      final offerPrice =
+                                          state.myevents[index].offerPrice;
 
-                                    final total = (entry - offer);
-                                    return ManageEvent(
-                                      offerPrice:
-                                          state.myevents[index].offerPrice,
-                                      event: state.myevents[index],
-                                      myeventId: state.myevents[index].id,
-                                      itemcount: state
-                                          .myevents[index]
-                                          .imageUrls
-                                          .length,
-                                      imageUrls:
-                                          state.myevents[index].imageUrls,
-                                      title: state.myevents[index].name,
-                                      URL: state.myevents[index].imageUrls.last,
-                                      AvailableSlote:
-                                          state.myevents[index].availableSlot,
-                                      Entryfee: state.myevents[index].entryFee,
-                                      location: state.myevents[index].venue,
-                                      totalfee: total.toString(),
-                                    );
-                                  },
+                                      final entry = int.tryParse(entryFee) ?? 0;
+                                      final offer =
+                                          int.tryParse(offerPrice) ?? 0;
+
+                                      final total = (entry - offer);
+                                      return ManageEvent(
+                                        offerPrice:
+                                            state.myevents[index].offerPrice,
+                                        event: state.myevents[index],
+                                        myeventId: state.myevents[index].id,
+                                        itemcount: state
+                                            .myevents[index]
+                                            .imageUrls
+                                            .length,
+                                        imageUrls:
+                                            state.myevents[index].imageUrls,
+                                        title: state.myevents[index].name,
+                                        URL: state
+                                            .myevents[index]
+                                            .imageUrls
+                                            .last,
+                                        AvailableSlote:
+                                            state.myevents[index].availableSlot,
+                                        Entryfee:
+                                            state.myevents[index].entryFee,
+                                        location: state.myevents[index].venue,
+                                        totalfee: total.toString(),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }
-                    return const Text("Only admin can create Event");
-                  },
-                ),
+                        );
+                      }
+                      return const Text("Only admin can create Event");
+                    },
+                  ),
+                ] else ...[
+                  const Text(""),
+                ],
 
                 Center(
                   child: InkWell(
