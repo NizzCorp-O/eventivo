@@ -25,7 +25,7 @@ class ManageEvent extends StatefulWidget {
   final String myeventId;
   final EventModel event;
   final String totalfee;
-   final  void Function()? onQr;
+  final void Function()? onQr;
 
   const ManageEvent({
     super.key,
@@ -39,7 +39,8 @@ class ManageEvent extends StatefulWidget {
     required this.myeventId,
     required this.event,
     required this.offerPrice,
-    required this.totalfee, this.onQr,
+    required this.totalfee,
+    this.onQr,
   });
 
   @override
@@ -48,7 +49,6 @@ class ManageEvent extends StatefulWidget {
 
 class _ManageEventState extends State<ManageEvent> {
   List<ProgramModel> programsList = [];
-
 
   @override
   void initState() {
@@ -215,7 +215,7 @@ class _ManageEventState extends State<ManageEvent> {
             Padding(
               padding: const EdgeInsets.only(left: 25, right: 25),
               child: InkWell(
-                onTap:widget.onQr,
+                onTap: widget.onQr,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 36, vertical: 17),
                   decoration: BoxDecoration(
@@ -591,7 +591,7 @@ class _ManageEventState extends State<ManageEvent> {
 
                   BlocBuilder<EventBloc, EventState>(
                     builder: (context, state) {
-                      if (state is EventFetched) {
+                      if (state is MyEventFetched) {
                         return Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
