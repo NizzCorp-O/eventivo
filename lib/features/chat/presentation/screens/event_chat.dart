@@ -108,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       .limit(1)
                       .snapshots(),
                   builder: (context, snapshot) {
-                    String recentMessage = "No messages yet";
+                    String recentMessage = " No messages yet";
                     String senderName = "";
                     String time = "";
 
@@ -127,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       URL: event.imageUrls.isNotEmpty ? event.imageUrls[0] : "",
                       time: timeAgoString,
                       title: event.name ?? "",
-                      participants: "30",
+                      participants: "",
                       recentmessage: "$senderName : $recentMessage",
                       recentmessagecount: "5", // 🔜 replace with unread count
                       onTap: () {

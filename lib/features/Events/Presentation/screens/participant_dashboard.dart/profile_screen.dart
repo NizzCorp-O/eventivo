@@ -6,6 +6,7 @@ import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/event_creation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/manage_event.dart';
+import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/scanned_tickets_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/edit_profile_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/my_events.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/upcoming_events.dart';
@@ -254,135 +255,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 const SizedBox(height: 20),
-                if (userRole == "admin") ...[
-                  Row(
-                    children: [
-                      Text(
-                        "My Events",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: CustomFontss.fontFamily,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const EventCreationScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 9,
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.add, color: Colors.white),
-                              SizedBox(width: 5),
-                              Text(
-                                "Create Event",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: ColorConstant.PrimaryBlue,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
 
-                  BlocConsumer<EventBloc, EventState>(
-                    listener: (context, state) {},
-                    builder: (context, state) {
-                      if (state is MyEventLoading) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: ColorConstant.GradientColor1,
-                            color: ColorConstant.MainBlack,
+                Row(
+                  children: [
+                    Text(
+                      "My Events",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: CustomFontss.fontFamily,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EventCreationScreen(),
                           ),
                         );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 9,
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.add, color: Colors.white),
+                            SizedBox(width: 5),
+                            Text(
+                              "Create Event",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: ColorConstant.PrimaryBlue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                BlocConsumer<EventBloc, EventState>(
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    if (state is MyEventLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: ColorConstant.GradientColor1,
+                          color: ColorConstant.MainBlack,
+                        ),
+                      );
+                    }
+
+                    if (state is MyEventFetched) {
+                      if (state.myevents.isEmpty) {
+                        return Text("");
                       }
 
-                      if (state is MyEventFetched) {
-                        if (state.myevents.isEmpty) {
-                          return Text("");
-                        }
-
-                        return Column(
-                          children: List.generate(
-                            state.myevents.length,
-                            (index) => Padding(
-                              padding: const EdgeInsets.only(
-                                top: 10,
-                                bottom: 10,
-                              ),
-                              child: My_Events(
-                                title: state.myevents[index].name,
-                                URL: state.myevents[index].imageUrls[0],
-                                date: state.myevents[index].date,
-                                time: state.myevents[index].startTime,
-                                onTap: () => Navigator.push(
+                      return Column(
+                        children: List.generate(
+                          state.myevents.length,
+                          (index) => Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: My_Events(
+                              title: state.myevents[index].name,
+                              URL: state.myevents[index].imageUrls[0],
+                              date: state.myevents[index].date,
+                              time: state.myevents[index].startTime,
+                              onTicket: () {
+                                Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) {
-                                      final entryFee =
-                                          state.myevents[index].entryFee;
-                                      final offerPrice =
-                                          state.myevents[index].offerPrice;
-
-                                      final entry = int.tryParse(entryFee) ?? 0;
-                                      final offer =
-                                          int.tryParse(offerPrice) ?? 0;
-
-                                      final total = (entry - offer);
-                                      return ManageEvent(
-                                        offerPrice:
-                                            state.myevents[index].offerPrice,
-                                        event: state.myevents[index],
-                                        myeventId: state.myevents[index].id,
-                                        itemcount: state
-                                            .myevents[index]
-                                            .imageUrls
-                                            .length,
-                                        imageUrls:
-                                            state.myevents[index].imageUrls,
-                                        title: state.myevents[index].name,
-                                        URL: state
-                                            .myevents[index]
-                                            .imageUrls
-                                            .last,
-                                        AvailableSlote:
-                                            state.myevents[index].availableSlot,
-                                        Entryfee:
-                                            state.myevents[index].entryFee,
-                                        location: state.myevents[index].venue,
-                                        totalfee: total.toString(),
-                                      );
-                                    },
+                                    builder: (context) => ScannedTickets(
+                                      eventId: state.myevents[index].id,
+                                      title: state.myevents[index].name,
+                                    ),
                                   ),
+                                );
+                              },
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    final entryFee =
+                                        state.myevents[index].entryFee;
+                                    final offerPrice =
+                                        state.myevents[index].offerPrice;
+
+                                    final entry = int.tryParse(entryFee) ?? 0;
+                                    final offer = int.tryParse(offerPrice) ?? 0;
+
+                                    final total = (entry - offer);
+                                    return ManageEvent(
+                                      offerPrice:
+                                          state.myevents[index].offerPrice,
+                                      event: state.myevents[index],
+                                      myeventId: state.myevents[index].id,
+                                      itemcount: state
+                                          .myevents[index]
+                                          .imageUrls
+                                          .length,
+                                      imageUrls:
+                                          state.myevents[index].imageUrls,
+                                      title: state.myevents[index].name,
+                                      URL: state.myevents[index].imageUrls.last,
+                                      AvailableSlote:
+                                          state.myevents[index].availableSlot,
+                                      Entryfee: state.myevents[index].entryFee,
+                                      location: state.myevents[index].venue,
+                                      totalfee: total.toString(),
+                                      onQr: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ScannedTickets(
+                                                  title: state
+                                                      .myevents[index]
+                                                      .name,
+                                                  eventId:
+                                                      state.myevents[index].id,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
                                 ),
                               ),
                             ),
                           ),
-                        );
-                      }
-                      return const Text("Only admin can create Event");
-                    },
-                  ),
-                ] else ...[
-                  const Text(""),
-                ],
+                        ),
+                      );
+                    }
+                    return const Text("Only admin can create Event");
+                  },
+                ),
 
                 Center(
                   child: InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
                       Navigator.of(context).pushReplacement(
@@ -404,7 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               offset: Offset(-1, 0),
                             ),
                           ],
-                          color: ColorConstant.GradientColor1,
+                          color: ColorConstant.CancelClr,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Center(
@@ -412,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             "Logout",
                             style: TextStyle(
                               fontFamily: CustomFontss.fontFamily,
-                              color: Colors.white,
+                              color: Colors.red,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -423,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
             ),
           ),

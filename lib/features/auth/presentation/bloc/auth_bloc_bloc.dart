@@ -80,6 +80,7 @@ class AuthBlocBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
         if (doc.exists && doc.data()!.containsKey("profileImage")) {
           emit(ProfileImageUpdated(doc.data()!["profileImage"]));
+          
         } else {
           emit(ProfileImageInitial());
         }

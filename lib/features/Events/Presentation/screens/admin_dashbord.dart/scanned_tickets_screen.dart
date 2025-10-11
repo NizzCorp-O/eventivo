@@ -1,16 +1,16 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/qr_scanner.dart';
-import 'package:eventivo/main.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class ScannedTickets extends StatefulWidget {
-  const ScannedTickets({super.key});
+  final String eventId;
+  final String title;
+
+  const ScannedTickets({super.key, required this.eventId, required this.title});
 
   @override
   State<ScannedTickets> createState() => _ScannedTicketsState();
@@ -21,60 +21,20 @@ class _ScannedTicketsState extends State<ScannedTickets> {
     final now = DateTime.now();
     final diff = now.difference(date);
 
-    if (diff.inSeconds < 60) {
-      return "${diff.inSeconds}s ago";
-    } else if (diff.inMinutes < 60) {
-      return "${diff.inMinutes}m ago";
-    } else if (diff.inHours < 24) {
-      return "${diff.inHours}h ago";
-    } else {
-      return "${diff.inDays}d ago";
-    }
+    if (diff.inSeconds < 60) return "${diff.inSeconds}s ago";
+    if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
+    if (diff.inHours < 24) return "${diff.inHours}h ago";
+    return "${diff.inDays}d ago";
   }
 
-  final scannedTime = DateTime.now().subtract(Duration(minutes: 2));
-  String get formattedTime => timeago.format(scannedTime);
-  final User? user = FirebaseAuth.instance.currentUser;
-  String? profileimage;
-  num scannedtickets = 0;
-  @override
-  void initState() {
-    setState(() {
-      scannedtickets;
-    });
-    super.initState();
-  }
-
-  final Map<String, String> _profileImageCache = {}; // cache for profile images
-
-  Future<String?> getUserProfileImage(String userId) async {
-    if (userId.isEmpty) return null;
-
-    if (_profileImageCache.containsKey(userId)) {
-      return _profileImageCache[userId];
-    }
-
-    final doc = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(userId)
-        .get();
-
-    if (doc.exists) {
-      final data = doc.data();
-      if (data != null && data.containsKey("profileImage")) {
-        profileimage = data["profileImage"];
-        _profileImageCache[userId] = profileimage!;
-        return profileimage;
-      }
-    }
-
-    return null; // fallback
-  }
+  num scannedTicketsCount = 0;
 
   @override
   Widget build(BuildContext context) {
-    final CollectionReference scannedCollection = FirebaseFirestore.instance
-        .collection('tickets');
+    final CollectionReference ticketsCollection = FirebaseFirestore.instance
+        .collection('events')
+        .doc(widget.eventId)
+        .collection('tickets'); // ✅ Fetch only tickets for this event
 
     return Scaffold(
       backgroundColor: ColorConstant.MainWhite,
@@ -86,12 +46,9 @@ class _ScannedTicketsState extends State<ScannedTickets> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          "Scan Tickets",
-          style: TextStyle(
-            fontFamily: CustomFontss.fontFamily,
-            fontWeight: FontWeight.w700,
-          ),
+        title: Text(
+          "Scanned Tickets",
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         elevation: 0,
@@ -108,13 +65,33 @@ class _ScannedTicketsState extends State<ScannedTickets> {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildStat("25".toString(), "Total Tickets", Colors.black87),
-                  _buildStat("12", "Today", ColorConstant.GradientColor1),
-                  _buildStat("${scannedtickets}", "Scanned", Colors.green),
-                ],
+              child: StreamBuilder<QuerySnapshot>(
+                stream: ticketsCollection.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    scannedTicketsCount = snapshot.data!.docs.length;
+                  }
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStat(
+                        scannedTicketsCount.toString(),
+                        "Total Tickets",
+                        Colors.black87,
+                      ),
+                      _buildStat(
+                        scannedTicketsCount.toString(),
+                        "Today",
+                        ColorConstant.GradientColor1,
+                      ),
+                      _buildStat(
+                        scannedTicketsCount.toString(),
+                        "Scanned",
+                        Colors.green,
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             const SizedBox(height: 24),
@@ -125,141 +102,87 @@ class _ScannedTicketsState extends State<ScannedTickets> {
               children: const [
                 Text(
                   "Recent Scans",
-                  style: TextStyle(
-                    fontFamily: CustomFontss.fontFamily,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                  ),
-                ),
-                Text(
-                  "View All",
-                  style: TextStyle(
-                    color: ColorConstant.GradientColor1,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
                 ),
               ],
             ),
             const SizedBox(height: 16),
+
             // List of recent scans
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: scannedCollection
+                stream: ticketsCollection
                     .orderBy('scannedAt', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasError) {
+                  if (snapshot.hasError)
                     return const Center(child: Text("Error loading tickets"));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
                     return const Center(child: CircularProgressIndicator());
-                  }
 
                   final docs = snapshot.data!.docs;
-                  log("tottal ticktes :${docs.length}");
-                  scannedtickets = docs.length;
-                  log("$scannedtickets");
-
-                  if (docs.isEmpty) {
-                    return Center(child: Text("No tickets scanned yet"));
-                  }
+                  if (docs.isEmpty)
+                    return const Center(child: Text("No tickets scanned yet"));
 
                   return ListView.builder(
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      String capitalizeFirstLetter(String text) {
-                        if (text.isEmpty) return text;
-                        return text[0].toUpperCase() + text.substring(1);
-                      }
-
                       final data = docs[index].data() as Map<String, dynamic>;
-
                       final userName = data['userName'] ?? "Unknown";
                       final attendees = data['attendees'] ?? 0;
-                      final paymentId = data['paymentId'] ?? "N/A";
-                      final ticketUserId = data['userId'] ?? "";
 
-                      return FutureBuilder<String?>(
-                        future: getUserProfileImage(ticketUserId),
-                        builder: (context, snapshot) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 20,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1,
-                                color: ColorConstant.InputBorder,
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1,
+                            color: ColorConstant.InputBorder,
+                          ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 30,
                               ),
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.shade200,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                              radius: 30,
                             ),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.grey.shade200,
-                                  child: Icon(
-                                    Icons.person,
-                                    size: 30,
-                                    color: Colors.black,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    userName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                  radius: 30,
-                                ),
-                                SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        capitalizeFirstLetter(userName),
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Attendees:$attendees",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorConstant.PrimaryBlue,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Scanned ${timeAgo(data['scannedAt'] != null ? (data['scannedAt'] as Timestamp).toDate() : DateTime.now())}",
-                                        style: TextStyle(
-                                          color: ColorConstant.PrimaryBlue,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    "Attendees: $attendees",
+                                    style: TextStyle(
+                                      color: ColorConstant.PrimaryBlue,
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: ColorConstant.GradientColor1,
-                                    borderRadius: BorderRadius.circular(16),
+                                  Text(
+                                    "Scanned ${timeAgo((data['scannedAt'] as Timestamp).toDate())}",
+                                    style: TextStyle(
+                                      color: ColorConstant.PrimaryBlue,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                  child: Icon(
-                                    Icons.chat_bubble_outline,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          );
-                        },
+                          ],
+                        ),
                       );
                     },
                   );
@@ -269,24 +192,17 @@ class _ScannedTicketsState extends State<ScannedTickets> {
           ],
         ),
       ),
-
-      // Floating Button
-      floatingActionButton: SizedBox(
-        height: 70,
-        width: 70,
-        child: FloatingActionButton(
-          elevation: 5,
-          shape: const CircleBorder(),
-          backgroundColor: ColorConstant.GradientColor1,
-          onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const QrScanner()),
-              (Route<dynamic> route) => false,
-            );
-          },
-          child: const Icon(Icons.qr_code_sharp, color: Colors.white, size: 40),
-        ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: ColorConstant.GradientColor1,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QrScanner(eventid: widget.eventId),
+            ),
+          );
+        },
+        child: const Icon(Icons.qr_code_sharp, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -309,3 +225,4 @@ class _ScannedTicketsState extends State<ScannedTickets> {
     );
   }
 }
+

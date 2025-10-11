@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class TicketScreen extends StatelessWidget {
+  final String eventid;
   final String user;
   final String paymentId;
   final String eventTitle;
@@ -19,13 +20,14 @@ class TicketScreen extends StatelessWidget {
     required this.eventTitle,
     required this.attnedees,
     required this.qurl,
-    required this.user,
+    required this.user, required this.eventid,
   });
 
   @override
   Widget build(BuildContext context) {
     final username = FirebaseAuth.instance.currentUser!.displayName;
     Map<String, dynamic> qrData = {
+      "eventid":eventid,
       "paymentId": paymentId,
       "eventName": eventTitle,
       "attendees": attnedees,
@@ -88,7 +90,7 @@ class TicketScreen extends StatelessWidget {
                         eyeShape: QrEyeShape.square,
                         color: Colors.black,
                       ),
-                      dataModuleStyle: const QrDataModuleStyle(
+                      dataModuleStyle:  QrDataModuleStyle(
                         dataModuleShape: QrDataModuleShape.square,
                         color: Colors.black,
                       ),
@@ -96,25 +98,25 @@ class TicketScreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     Text(
                       "Payment ID: $paymentId",
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      style:  TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                     SizedBox(height: 10),
 
                     Text(
                       user,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      style:  TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            const Text(
+             SizedBox(height: 30),
+             Text(
               "Show this QR code at the event entrance",
               style: TextStyle(fontSize: 16, color: Colors.white70),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
@@ -146,7 +148,7 @@ class TicketScreen extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () {},
 
-              label: const Text(
+              label:  Text(
                 "Please Take Screenshot",
                 style: TextStyle(color: ColorConstant.MainWhite),
               ),

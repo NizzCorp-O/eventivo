@@ -32,6 +32,7 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+ 
     TicketsRepositories ticketrepo = TicketsRepositories();
     final User? user = FirebaseAuth.instance.currentUser;
     return SafeArea(
@@ -92,7 +93,9 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                               bottom: 6,
                             ),
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                          
+                              },
                               child: Container(
                                 height: 44,
                                 width: 44,
@@ -256,6 +259,8 @@ class _ParticipantHomeScreenState extends State<ParticipantHomeScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => TicketScreen(
+                                            eventid:
+                                                ticketData['eventId'] ?? "",
                                             paymentId:
                                                 ticketData['paymentId'] ?? "",
                                             eventTitle:

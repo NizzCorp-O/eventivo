@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class My_Events extends StatelessWidget {
+  final void Function()? onTicket;
   final String URL;
   final String title;
   final String date;
@@ -20,6 +21,7 @@ class My_Events extends StatelessWidget {
     required this.date,
     required this.time,
     required this.onTap,
+    this.onTicket,
   });
 
   @override
@@ -119,14 +121,8 @@ class My_Events extends StatelessWidget {
                       Column(
                         children: [
                           InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ScannedTickets(),
-                                ),
-                              );
-                            },
+                            onTap: onTicket,
+
                             child: Container(
                               child: Center(
                                 child: Icon(

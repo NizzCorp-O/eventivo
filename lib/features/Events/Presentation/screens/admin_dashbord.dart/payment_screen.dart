@@ -92,6 +92,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => TicketScreen(
+          eventid:widget.eventid,
           user: userEmail.toString(),
           paymentId: paymentId,
           eventTitle: widget.title,

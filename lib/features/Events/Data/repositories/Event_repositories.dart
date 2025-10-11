@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +25,7 @@ class EventRepository {
         await ref.putFile(file);
         final downloadUrl = await ref.getDownloadURL();
         imageUrls.add(downloadUrl);
+        
       }
 
       // Add imageUrls into event map
@@ -67,14 +67,12 @@ class EventRepository {
     for (var file in limitedFiles) {
       imageslist.add(file);
       // Add instantly so UI updates
-
       final localFile = File(file.path);
       final fileName = DateTime.now().millisecondsSinceEpoch.toString();
       final ext = file.name.split('.').last;
       final ref = FirebaseStorage.instance.ref().child(
         'event_images/$fileName.$ext',
       );
-
       try {
         final uploadTask = ref.putFile(localFile);
 
@@ -95,20 +93,24 @@ class EventRepository {
     }
   }
 
-Stream<List<EventModel>> getMyEvents() {
-  final userId = FirebaseAuth.instance.currentUser!.uid;
+  Stream<List<EventModel>> getMyEvents() {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
 
-  return FirebaseFirestore.instance
-      .collection('events')
-      .where('createdBy', isEqualTo: userId)
-      .snapshots() // 👈 real-time updates
-      .map((snapshot) {
-        return snapshot.docs
-            .map((doc) => EventModel.fromMap(doc.id, doc.data() as Map<String, dynamic>))
-            .toList();
-      });
-}
-
+    return FirebaseFirestore.instance
+        .collection('events')
+        .where('createdBy', isEqualTo: userId)
+        .snapshots() // 👈 real-time updates
+        .map((snapshot) {
+          return snapshot.docs
+              .map(
+                (doc) => EventModel.fromMap(
+                  doc.id,
+                  doc.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList();
+        });
+  }
 
   Stream<List<EventModel>> getEvents() {
     return FirebaseFirestore.instance

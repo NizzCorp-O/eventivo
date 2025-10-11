@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
-import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/profile_screen.dart';
+import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -38,9 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final userId = user!.uid;
 
     try {
-      // Update Firebase Auth displayName and email
       await user.updateDisplayName(_nameController.text.trim());
-      // await user.verifyBeforeUpdateEmail(_emailController.text.trim());
 
       // Update Firestore user document
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
@@ -48,6 +45,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // "email": _emailController.text.trim(),
       });
 
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => MyHomePage()),
+        (route) => false,
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: ColorConstant.PrimaryBlue,
@@ -55,10 +57,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
-      );
       setState(() {}); // go back to Profile screen
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

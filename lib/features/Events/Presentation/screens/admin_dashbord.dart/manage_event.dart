@@ -6,9 +6,7 @@ import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/programs/bloc/programs_bloc.dart'
     hide PickedStartTime;
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/qr_scanner.dart';
 import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/scanned_tickets_screen.dart';
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/particiipant_list_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/program_section.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';
@@ -27,6 +25,7 @@ class ManageEvent extends StatefulWidget {
   final String myeventId;
   final EventModel event;
   final String totalfee;
+   final  void Function()? onQr;
 
   const ManageEvent({
     super.key,
@@ -40,7 +39,7 @@ class ManageEvent extends StatefulWidget {
     required this.myeventId,
     required this.event,
     required this.offerPrice,
-    required this.totalfee,
+    required this.totalfee, this.onQr,
   });
 
   @override
@@ -49,6 +48,7 @@ class ManageEvent extends StatefulWidget {
 
 class _ManageEventState extends State<ManageEvent> {
   List<ProgramModel> programsList = [];
+
 
   @override
   void initState() {
@@ -69,7 +69,6 @@ class _ManageEventState extends State<ManageEvent> {
     TextEditingController availableSlotController = TextEditingController(
       text: widget.AvailableSlote,
     );
-
     return Scaffold(
       backgroundColor: ColorConstant.MainWhite,
       appBar: AppBar(
@@ -216,12 +215,7 @@ class _ManageEventState extends State<ManageEvent> {
             Padding(
               padding: const EdgeInsets.only(left: 25, right: 25),
               child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ScannedTickets()),
-                  );
-                },
+                onTap:widget.onQr,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 36, vertical: 17),
                   decoration: BoxDecoration(
@@ -356,7 +350,7 @@ class _ManageEventState extends State<ManageEvent> {
             ),
             SizedBox(height: 20),
             Padding(
-              padding:  EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
 
               ///////////////  PROGRAM SECTION /////////////
               ///////////////  PROGRAM SECTION /////////////
