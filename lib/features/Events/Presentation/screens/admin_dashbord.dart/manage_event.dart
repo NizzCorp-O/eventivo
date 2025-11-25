@@ -6,7 +6,6 @@ import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/event_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/programs/bloc/programs_bloc.dart'
     hide PickedStartTime;
-import 'package:eventivo/features/Events/Presentation/screens/admin_dashbord.dart/scanned_tickets_screen.dart';
 import 'package:eventivo/features/Events/Presentation/screens/participant_dashboard.dart/bottom_navigation_screen.dart';
 import 'package:eventivo/features/Events/Presentation/widgets/program_section.dart';
 import 'package:eventivo/features/auth/presentation/utils/validator.dart';

@@ -1,9 +1,7 @@
 import 'package:eventivo/core/constants/color_constants.dart/color_constant.dart';
 import 'package:eventivo/core/utils%20/fonts.dart';
-import 'package:eventivo/features/Events/Data/models/event_models.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_bloc.dart';
 import 'package:eventivo/features/Events/Presentation/Bloc/Chat/bloc/chat_event.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

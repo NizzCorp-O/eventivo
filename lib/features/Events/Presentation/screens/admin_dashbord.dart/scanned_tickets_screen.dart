@@ -53,7 +53,7 @@ class _ScannedTicketsState extends State<ScannedTickets> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Stats Section
+            // Stats Section
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -86,16 +86,16 @@ class _ScannedTicketsState extends State<ScannedTickets> {
                   // ✅ Pending tickets
                   final pendingTickets = totalTickets - scannedTickets;
 
-                  // ✅ Today scanned
-                  final today = DateTime.now();
-                  final todayScanned = allTickets.where((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    if (data['scannedAt'] == null) return false;
-                    final scannedAt = (data['scannedAt'] as Timestamp).toDate();
-                    return scannedAt.year == today.year &&
-                        scannedAt.month == today.month &&
-                        scannedAt.day == today.day;
-                  }).length;
+                  // Today scanned
+                  // final today = DateTime.now();
+                  // final todayScanned = allTickets.where((doc) {
+                  //   final data = doc.data() as Map<String, dynamic>;
+                  //   if (data['scannedAt'] == null) return false;
+                  //   final scannedAt = (data['scannedAt'] as Timestamp).toDate();
+                  //   return scannedAt.year == today.year &&
+                  //       scannedAt.month == today.month &&
+                  //       scannedAt.day == today.day;
+                  // }).length;
 
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
